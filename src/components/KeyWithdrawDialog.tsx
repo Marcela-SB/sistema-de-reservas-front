@@ -76,7 +76,7 @@ export default function KeyWithdraDialog({ isOpen, setIsOpen }: Props) {
             queryClient.invalidateQueries({ queryKey: ["keyListContext"] });
             setSnackBarText("Entrega de chave criada com sucesso");
             setSnackBarSeverity("success");
-            setIsOpen(false);
+            //setIsOpen(false);
             cleanInputs();
         },
         onError: (error: any) => {
