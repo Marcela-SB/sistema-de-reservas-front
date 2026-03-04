@@ -135,7 +135,7 @@ export default function AuthorizationScrollableList({
                             >
                                 <ListItemText
                                     primary={`${item.name}`}
-                                    secondary={`${authProff?.name}`+(!authProff?.active && " (inativo)")}
+                                    secondary={`${authProff?.name}`+(authProff?.active ? "" : " (inativo)")}
                                 />
                             </ListItem>
                         );

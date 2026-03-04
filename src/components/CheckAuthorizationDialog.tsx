@@ -449,7 +449,7 @@ export default function CheckAuthorizationDialog({
                                     id="controllable-states-demo"
                                     options={allUsersList}
                                     getOptionLabel={(user: UserT) => {
-                                        return user.name + (!user.active && " (inativo)");
+                                        return user.name + (user.active ? "" : " (inativo)");
                                     }}
                                     sx={{ flexGrow: 1 }}
                                     renderInput={(params) => (

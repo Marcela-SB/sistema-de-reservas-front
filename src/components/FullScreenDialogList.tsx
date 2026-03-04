@@ -275,7 +275,7 @@ export default function FullScreenDialogList({
                             id="controllable-states-demo"
                             options={allUsersList}
                             getOptionLabel={(user: UserT) => {
-                                return user.name + (!user.active && " (inativo)");
+                                return user.name + (user.active ? "" : " (inativo)");
                             }}
                             renderInput={(params) => (
                                 <TextField
@@ -295,7 +295,7 @@ export default function FullScreenDialogList({
                             id="controllable-states-demo"
                             options={allUsersList}
                             getOptionLabel={(user: UserT) => {
-                                return user.name + (!user.active && " (inativo)");
+                                return user.name + (user.active ? "" : " (inativo)");
                             }}
                             renderInput={(params) => (
                                 <TextField
