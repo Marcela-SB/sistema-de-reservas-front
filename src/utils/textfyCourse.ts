@@ -6,13 +6,15 @@ export default function textfyCourse( course: Courses ){
             return 'Teatro'
         case Courses.ARTES:
             return 'Artes Visuais'
-        case Courses.DESING:
-            return 'Desing'
-        case Courses.DANÇA:
+        case Courses.DESIGN:
+            return 'Design'
+        case Courses.DANCA:
             return 'Dança'
         case Courses.POS:
                 return 'Pós'
+        case Courses.PROJETO:
+                return 'Projeto de Extensão'
         default:
-            return 'Sem curso relacionado'
+            return 'Atividades Diversas'
     }
 }

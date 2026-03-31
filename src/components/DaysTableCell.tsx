@@ -8,10 +8,11 @@ import { Courses } from "../types/Courses";
 const courseColors = {
     TEATRO: "#a4c2f4",
     ARTES: "#ffe599",
-    DESING: "#b6d7a8",
-    DANÇA: "#f4cccc",
+    DESIGN: "#b6d7a8",
+    DANCA: "#f4cccc",
     NOCOURSE: "#e4ecf7",
-    POS: "#eecca7"
+    POS: "#eecca7",
+    PROJETO: "#d9c9ff"
 };
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({

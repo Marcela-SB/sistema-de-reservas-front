@@ -224,7 +224,7 @@ export default function FullScreenActionDialog({
         onError: (error) => {
             setSnackBarText(error.response.data);
             setSnackBarSeverity("error");
-            alert("DEU ERRO. CHAME MÁRIO.")
+            alert("DEU ERRO. CHAME O DEV.")
         },
     });
 
@@ -473,17 +473,20 @@ export default function FullScreenActionDialog({
                                     <MenuItem value={Courses.ARTES}>
                                         Artes Visuais
                                     </MenuItem>
-                                    <MenuItem value={Courses.DESING}>
-                                        Desing
+                                    <MenuItem value={Courses.DESIGN}>
+                                        Design
                                     </MenuItem>
-                                    <MenuItem value={Courses.DANÇA}>
+                                    <MenuItem value={Courses.DANCA}>
                                         Dança
                                     </MenuItem>
                                     <MenuItem value={Courses.POS}>
                                         Pós Graduação
                                     </MenuItem>
+                                    <MenuItem value={Courses.PROJETO}>
+                                        Projeto de Extensão
+                                    </MenuItem>
                                     <MenuItem value={Courses.NOCOURSE}>
-                                        Sem curso relacionado
+                                        Atividades Diversas
                                     </MenuItem>
                                 </Select>
                             </StyledFormControl>

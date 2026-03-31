@@ -1,8 +1,9 @@
 export enum Courses {
     TEATRO = 'TEATRO',
     ARTES = 'ARTES',
-    DESING = 'DESING',
-    DANÇA = 'DANÇA',
+    DESIGN = 'DESIGN',
+    DANCA = 'DANCA',
     NOCOURSE = 'NOCOURSE',
-    POS = 'POS'
+    POS = 'POS',
+    PROJETO = 'PROJETO'
 }

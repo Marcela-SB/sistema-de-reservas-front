@@ -121,7 +121,7 @@ export default function DaysTable({
                             pointerEvents: "none",
                         }}
                     >
-                        Desing
+                        Design
                     </Button>
                     <Button
                         sx={{
@@ -143,12 +143,21 @@ export default function DaysTable({
                     </Button>
                     <Button
                         sx={{
+                            backgroundColor: "#d9c9ff",
+                            color: "inherit",
+                            pointerEvents: "none",
+                        }}
+                    >
+                        Proj. Extensão
+                    </Button>
+                    <Button
+                        sx={{
                             backgroundColor: "#e4ecf7",
                             color: "inherit",
                             pointerEvents: "none",
                         }}
                     >
-                        Sem curso
+                        Ativ. Diversas
                     </Button>
                 </ButtonGroup>
             </Stack>
