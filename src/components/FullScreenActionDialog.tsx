@@ -46,6 +46,7 @@ import {
     Close,
 } from "@mui/icons-material";
 import { useEnterSubmit } from "../utils/enterKeyButtonActivate";
+import { getEnabledDays } from "../utils/getEnabledDays";
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -138,9 +139,9 @@ export default function FullScreenActionDialog({
     );
 
     const [formComment, setFormComment] = useState("");
+    const [formSchedule, setFormSchedule] = useState<boolean[][]>(baseInternalSchedule);
 
-    const [formSchedule, setFormSchedule] =
-        useState<boolean[][]>(baseInternalSchedule);
+    const activeDays = getEnabledDays(formStartDay, formEndDay, formIsOneDay);
 
     React.useEffect(() => {
         if (selectedReservation) {
@@ -602,6 +603,7 @@ export default function FullScreenActionDialog({
                                 <FullScreenTableDialog
                                     formSchedule={formSchedule}
                                     setFormSchedule={setFormSchedule}
+                                    activeDays={activeDays}
                                 />
                             </Grid>
                         </Grid>

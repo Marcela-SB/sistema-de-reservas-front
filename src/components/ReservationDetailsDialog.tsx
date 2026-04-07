@@ -200,6 +200,8 @@ export default function ReservationDetailsDialog({
 
                         <ReservationDetailsTable
                             formSchedule={reservation.schedule}
+                            reservationStart={reservation.reservationStart}
+                            reservationEnd={reservation.reservationEnd}
                         />
                     </Stack>
                 </Box>

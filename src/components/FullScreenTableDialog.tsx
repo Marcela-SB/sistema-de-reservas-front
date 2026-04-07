@@ -13,11 +13,13 @@ import { weekDays } from "../types/weekDays";
 type Props = {
     formSchedule: boolean[][];
     setFormSchedule: (b: boolean[][]) => void;
+    activeDays: number[];
 };
 
 export default function FullScreenTableDialog({
     formSchedule,
     setFormSchedule,
+    activeDays
 }: Props) {
     const handleChange = (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -80,76 +82,97 @@ export default function FullScreenTableDialog({
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {weekDays.map((wd, weekIndex) => (
-                        <TableRow key={wd.name}>
-                            <TableCell align="center">{wd.name}</TableCell>
+                    {weekDays.map((wd, weekIndex) => {
 
-                            {tableSchedule.map((schedule, hourIndex) => {
-                               
-                                return (
-                                    <Tooltip
-                                        title={""}
-                                        key={weekIndex + hourIndex}
-                                    >
-                                        <TableCell
-                                            padding="checkbox"
-                                            key={
-                                                "row" +
-                                                schedule.shift +
-                                                schedule.hourly
-                                            }
-                                            size="medium"
-                                            align="center"
+                        const isDayDisabled = !activeDays.includes(weekIndex);
+
+                        return(
+                            <TableRow 
+                                key={wd.name}
+                                sx={{ 
+                                    backgroundColor: isDayDisabled ? "rgba(0, 0, 0, 0.04)" : "inherit",
+                                    transition: "0.3s"
+                                }}
+                            >
+                                <TableCell 
+                                    sx={{ 
+                                        textAlign: 'center',
+                                        color: isDayDisabled ? "text.disabled" : "text.primary",
+                                        fontWeight: isDayDisabled ? 400 : 600 
+                                    }}
+                                >
+                                    {wd.name}
+                                </TableCell>
+
+                                {tableSchedule.map((schedule, hourIndex) => {
+                                
+                                    return (
+                                        <Tooltip
+                                            title={""}
+                                            key={weekIndex + hourIndex}
                                         >
-                                            {formSchedule[weekIndex][
-                                                hourIndex
-                                            ] ? (
-                                                <Checkbox
-                                                    sx={{
-                                                        "& .MuiSvgIcon-root": {
-                                                            fontSize: 26,
-                                                        },
-                                                    }}
-                                                    checked={
-                                                        formSchedule[weekIndex][
-                                                            hourIndex
-                                                        ]
-                                                    }
-                                                    onChange={(e) => {
-                                                        handleChange(
-                                                            e,
-                                                            weekIndex,
-                                                            hourIndex
-                                                        );
-                                                    }}
-                                                />
-                                            ) : (
-                                                <Checkbox
-                                                    sx={{
-                                                        "& .MuiSvgIcon-root": {
-                                                            fontSize: 26,
-                                                        },
-                                                    }}
-                                                    checked={
-                                                        formSchedule[weekIndex][
-                                                            hourIndex
-                                                        ]
-                                                    }
-                                                    onChange={(e) => {
-                                                        handleChange(
-                                                            e,
-                                                            weekIndex,
-                                                            hourIndex
-                                                        );
-                                                    }}
-                                                />
-                                            )}
-                                        </TableCell>
-                                    </Tooltip>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
+                                            <TableCell
+                                                padding="checkbox"
+                                                key={
+                                                    "row" +
+                                                    schedule.shift +
+                                                    schedule.hourly
+                                                }
+                                                size="medium"
+                                                align="center"
+                                            >
+                                                {formSchedule[weekIndex][
+                                                    hourIndex
+                                                ] ? (
+                                                    <Checkbox
+                                                        disabled={isDayDisabled}
+                                                        sx={{
+                                                            "& .MuiSvgIcon-root": {
+                                                                fontSize: 26,
+                                                            },
+                                                        }}
+                                                        checked={
+                                                            formSchedule[weekIndex][
+                                                                hourIndex
+                                                            ]
+                                                        }
+                                                        onChange={(e) => {
+                                                            handleChange(
+                                                                e,
+                                                                weekIndex,
+                                                                hourIndex
+                                                            );
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <Checkbox
+                                                        disabled={isDayDisabled}
+                                                        sx={{
+                                                            "& .MuiSvgIcon-root": {
+                                                                fontSize: 26,
+                                                            },
+                                                        }}
+                                                        checked={
+                                                            formSchedule[weekIndex][
+                                                                hourIndex
+                                                            ]
+                                                        }
+                                                        onChange={(e) => {
+                                                            handleChange(
+                                                                e,
+                                                                weekIndex,
+                                                                hourIndex
+                                                            );
+                                                        }}
+                                                    />
+                                                )}
+                                            </TableCell>
+                                        </Tooltip>
+                                    );
+                                })}
+                            </TableRow>
+                        )
+                    })}
                 </TableBody>
             </Table>
         </TableContainer>
