@@ -13,7 +13,6 @@ import { StateContext } from "../context/ReactContext";
 import getUserById from "../utils/getUserById";
 import dayjs from "dayjs";
 import ReservationDetailsTable from "./ReservationDetailsTable";
-import { Courses } from "../types/Courses";
 import textfyCourse from "../utils/textfyCourse";
 import PaperComponent from "./PaperComponent";
 import DraggablePaper from "./DraggablePaper";
@@ -131,7 +130,13 @@ export default function ReservationDetailsDialog({
                     </Toolbar>
                 </AppBar>
                 <Box sx={{ padding: 2, flexGrow: 1 }}>
-                    <Stack direction={"column"}>
+                    <Stack 
+                        direction={"column"}
+                        spacing={2} 
+                        divider={
+                            <Divider orientation="horizontal" flexItem />
+                        }
+                    >
                         <Stack
                             direction={"row"}
                             sx={{ minWidth: 0 }}
@@ -145,30 +150,22 @@ export default function ReservationDetailsDialog({
                                     Nome da reserva: {reservation.name}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
-                                    Vagas da reserva:
-                                    {reservation.slots}
+                                    Vagas da reserva: {reservation.slots}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
                                     Curso: {textfyCourse(reservation.course)}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
-                                    Reservador por:
-                                    {
-                                        getUserById(
-                                            reservation.reservatedToId,
-                                            allUsersList
-                                        )?.name
-                                    }
+                                    Reservador por: {getUserById(reservation.reservatedToId, allUsersList)?.name}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
-                                    Sala reservada:
-                                    {reservationRoomList.map((room) => {
-                                        return (
-                                            <>
-                                                {room?.name} {room?.roomNumber},
-                                            </>
-                                        );
-                                    })}
+                                    Sala reservada: {reservationRoomList.map((room) => {
+                                            return (
+                                                <>
+                                                    {room?.name} {room?.roomNumber},
+                                                </>
+                                            );
+                                        })}
                                 </Typography>
 
                                 <Typography variant="body1" noWrap>
@@ -178,13 +175,7 @@ export default function ReservationDetailsDialog({
                                         : null}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
-                                    Responsavel pela reserva:
-                                    {
-                                        getUserById(
-                                            reservation.reservationResponsibleId,
-                                            allUsersList
-                                        )?.name
-                                    }
+                                    Responsavel pela reserva: {getUserById(reservation.reservationResponsibleId, allUsersList)?.name}
                                 </Typography>
                             </Box>
 

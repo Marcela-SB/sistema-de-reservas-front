@@ -121,23 +121,13 @@ export default function FullScreenActionDialog({
     } = React.useContext(StateContext);
 
     const [formName, setFormName] = useState("");
-
     const [formSlots, setFormSlots] = useState<number | null>(null);
-
     const [formRoom, setFormRoom] = useState<RoomT[]>([]);
-
     const [formCourse, setFormCourse] = useState<Courses>(Courses.NOCOURSE);
-
     const [formStartDay, setFormStartDay] = useState<Dayjs | null>(dayjs());
-
     const [formIsOneDay, setFormIsOneDay] = useState(true);
-
     const [formEndDay, setFormEndDay] = useState<Dayjs | null>(dayjs());
-
-    const [formReservatedTo, setFormReservatedTo] = useState<UserT | null>(
-        null
-    );
-
+    const [formReservatedTo, setFormReservatedTo] = useState<UserT | null>(null);
     const [formComment, setFormComment] = useState("");
     const [formSchedule, setFormSchedule] = useState<boolean[][]>(baseInternalSchedule);
 
