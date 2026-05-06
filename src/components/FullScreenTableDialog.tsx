@@ -31,19 +31,13 @@ export default function FullScreenTableDialog({
         setFormSchedule([...holder]);
     };
 
-    if(formSchedule.length <= 6){
-        // O novo array que você quer adicionar no início
-        const novoHorario = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
-
-        // Criamos um novo array começando com 'novoHorario' e depois
-        // "espalhando" todos os itens do 'formSchedule' original
-        const novoFormSchedule = [novoHorario, ...formSchedule];
-
-        console.log(novoFormSchedule);
-        
-        // Atualizamos o estado com o novo array
-        setFormSchedule(novoFormSchedule);
-    }
+    React.useEffect(() => {
+        if (formSchedule.length <= 6) {
+            const novoHorario = Array(16).fill(false);
+            const novoFormSchedule = [novoHorario, ...formSchedule];
+            setFormSchedule(novoFormSchedule);
+        }
+    }, [formSchedule, setFormSchedule]);
 
     return (
         <TableContainer component={Paper} sx={{ marginX: "auto" }}>

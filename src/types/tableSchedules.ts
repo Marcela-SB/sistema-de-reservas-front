@@ -17,14 +17,7 @@ export const tableSchedule = [
     { startTime: '21:20', endTime: '22:10', shift: 'N', hourly: 4 },
   ];
 
-export const baseInternalSchedule = [
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-  [false, false, false, false, false, false, false, false,false, false, false, false,false, false, false, false],
-]
+export const baseInternalSchedule = (): boolean[][] => 
+    Array(7).fill(null).map(() => Array(16).fill(false));
   
   
