@@ -162,7 +162,7 @@ export default function ReservationDetailsDialog({
                                     Sala reservada: {reservationRoomList.map((room) => {
                                             return (
                                                 <>
-                                                    {room?.name} {room?.roomNumber},
+                                                    {room?.name} - {room?.roomNumber},
                                                 </>
                                             );
                                         })}

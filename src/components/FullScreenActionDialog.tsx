@@ -439,7 +439,7 @@ export default function FullScreenActionDialog({
                                                 style={{ marginRight: 8 }}
                                                 checked={selected}
                                             />
-                                            {room.name} {roomN}
+                                            {room.name} - {roomN}
                                         </li>
                                     );
                                 }}

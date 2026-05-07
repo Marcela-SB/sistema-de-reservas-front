@@ -115,7 +115,7 @@ export default function KeyScrollableList({
                             let roomDisplayName = room?.name;
                             if (room?.roomNumber) {
                                 roomDisplayName =
-                                    roomDisplayName + " " + room.roomNumber;
+                                    roomDisplayName + " - " + room.roomNumber;
                             }
 
                             const withdratime = dayjs(item.withdrawTime).format(
@@ -203,7 +203,7 @@ export default function KeyScrollableList({
                                 let roomDisplayName = room?.name;
                                 if (room?.roomNumber) {
                                     roomDisplayName =
-                                        roomDisplayName + " " + room.roomNumber;
+                                        roomDisplayName + " - " + room.roomNumber;
                                 }
 
                                 const withdratime = dayjs(item.withdrawTime).format(
@@ -306,7 +306,7 @@ export default function KeyScrollableList({
                             let roomDisplayName = room?.name;
                             if (room?.roomNumber) {
                                 roomDisplayName =
-                                    roomDisplayName + " " + room.roomNumber;
+                                    roomDisplayName + " - " + room.roomNumber;
                             }
 
                             const withdratime = dayjs(item.withdrawTime).format(
@@ -374,7 +374,7 @@ export default function KeyScrollableList({
                                 let roomDisplayName = room?.name;
                                 if (room?.roomNumber) {
                                     roomDisplayName =
-                                        roomDisplayName + " " + room.roomNumber;
+                                        roomDisplayName + " - " + room.roomNumber;
                                 }
 
                                 const withdratime = dayjs(item.withdrawTime).format(

@@ -247,7 +247,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                                         if (room.roomNumber) {
                                             roomN = room.roomNumber;
                                         }
-                                        return `${room.name} ${roomN}`;
+                                        return `${room.name} - ${roomN}`;
                                     }}
                                     renderInput={(params) => (
                                         <TextField

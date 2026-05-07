@@ -370,7 +370,7 @@ export default function DaysTable({
                                                         noWrap
                                                     >
                                                         {room.name +
-                                                            " " +
+                                                            " - " +
                                                             room.roomNumber}
                                                     </Typography>
                                                     <Box

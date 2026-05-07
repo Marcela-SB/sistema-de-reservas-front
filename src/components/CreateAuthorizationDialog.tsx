@@ -461,7 +461,7 @@ export default function CreateAuthorizationDialog({
                                                     style={{ marginRight: 8 }}
                                                     checked={selected}
                                                 />
-                                                {room.name} {roomN}
+                                                {room.name} - {roomN}
                                             </li>
                                         );
                                     }}

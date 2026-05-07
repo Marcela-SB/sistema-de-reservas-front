@@ -34,7 +34,7 @@ export default function KeyWithdrawRoomList({
             {visible && (
                 <>
                     <ListItem key={`modroomlist-${room.id}`}>
-                        {room.name} {room.roomNumber}
+                        {room.name} - {room.roomNumber}
                         <ListItemSecondaryAction>
                             <Checkbox
                                 onChange={() => {

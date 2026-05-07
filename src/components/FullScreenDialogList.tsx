@@ -258,7 +258,7 @@ export default function FullScreenDialogList({
                                 if (room.roomNumber) {
                                     roomN = room.roomNumber;
                                 }
-                                return `${room.name} ${roomN}`;
+                                return `${room.name} - ${roomN}`;
                             }}
                             renderInput={(params) => (
                                 <TextField {...params} label="Sala reservada" />

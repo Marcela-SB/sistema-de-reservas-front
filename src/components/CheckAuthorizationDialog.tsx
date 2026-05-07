@@ -359,7 +359,7 @@ export default function CheckAuthorizationDialog({
                                                     checked={selected}
                                                     readOnly
                                                 />
-                                                {room.name} {roomN}
+                                                {room.name} - {roomN}
                                             </li>
                                         );
                                     }}
