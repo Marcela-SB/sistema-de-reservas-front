@@ -109,7 +109,7 @@ function ModifyRoomListD({
                                             secondary={
                                                 room.responsibleId && (
                                                     <Typography variant="caption" component="span" display="block">
-                                                        Responsável: {activeUsersList.find(u => u.id === room.responsibleId)?.name || ""}
+                                                        Responsável: {activeUsersList?.find(u => u.id === room.responsibleId)?.name || ""}
                                                     </Typography>
                                                 )
                                             }
