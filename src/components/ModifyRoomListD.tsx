@@ -1,19 +1,4 @@
-import {
-    AppBar,
-    Box,
-    Button,
-    Dialog,
-    Divider,
-    FormControl,
-    IconButton,
-    List,
-    ListItem,
-    ListItemSecondaryAction,
-    Stack,
-    TextField,
-    Toolbar,
-    Typography,
-} from "@mui/material";
+import { AppBar, Dialog, Divider, FormControl, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Stack, TextField, Toolbar, Typography, } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { StateContext } from "../context/ReactContext";
 import { Close, Send } from "@mui/icons-material";
@@ -34,7 +19,7 @@ function ModifyRoomListD({
     setSelectedRoom,
     setCreateRoom,
 }: Props) {
-    const { roomList } = React.useContext(StateContext);
+    const { roomList, activeUsersList } = React.useContext(StateContext);
 
     const [scrollableRoomArray, setScrollableRoomArray] = useState<RoomT[]>([]);
 
@@ -119,7 +104,16 @@ function ModifyRoomListD({
                             return (
                                 <>
                                     <ListItem key={`modroomlist-${room.id}`}>
-                                        {room.name} {room.roomNumber}
+                                        <ListItemText
+                                            primary={`${room.name} - ${room.roomNumber}`}
+                                            secondary={
+                                                room.responsibleId && (
+                                                    <Typography variant="caption" component="span" display="block">
+                                                        Responsável: {activeUsersList.find(u => u.id === room.responsibleId)?.name || ""}
+                                                    </Typography>
+                                                )
+                                            }
+                                        />
                                         <ListItemSecondaryAction>
                                             <IconButton
                                                 onClick={() => selectRoom(room)}

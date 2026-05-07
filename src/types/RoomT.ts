@@ -14,5 +14,6 @@ export type RoomT = {
     hasKey:boolean;
     reservable:boolean;
     administrative:boolean;
+    responsibleId: string | null;
   };
   

@@ -8,15 +8,7 @@ import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { StateContext } from "../context/ReactContext";
 import { useState } from "react";
-import {
-    Box,
-    Checkbox,
-    Divider,
-    FormControlLabel,
-    IconButton,
-    Stack,
-    TextField,
-} from "@mui/material";
+import { Autocomplete, Box, Checkbox, Divider, FormControlLabel, IconButton, Stack, TextField, } from "@mui/material";
 import axiosInstance from "../utils/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "../utils/queryClient";
@@ -27,6 +19,7 @@ import { Close } from "@mui/icons-material";
 import DraggablePaper from "./DraggablePaper";
 import PaperComponent from "./PaperComponent";
 import { useEnterSubmit } from "../utils/enterKeyButtonActivate";
+import { UserT } from "../types/UserT";
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -92,42 +85,26 @@ export default function CreateRoomDialog({
         setIsConfirmationDOpen(false)
     };
 
-    const { setSnackBarText, setSnackBarSeverity } =
+    const { setSnackBarText, setSnackBarSeverity, activeUsersList } =
         React.useContext(StateContext);
 
     const [formName, setFormName] = useState("");
-
     const [formRNumber, setFormRNumber] = useState<string | null>("");
-
     const [formCapacity, setFormCapacity] = useState<number | null>(null);
-
-    const [formChairQuantity, setFormChairQuantity] = useState<number | null>(
-        null
-    );
-    const [formComputerQuantity, setFormComputerQuantity] = useState<
-        number | null
-    >(null);
+    const [formChairQuantity, setFormChairQuantity] = useState<number | null>(null);
+    const [formComputerQuantity, setFormComputerQuantity] = useState<number | null>(null);
     const [airConditioner, setAirConditioner] = useState(false);
-
-    const [isAirConditionerWorking, setIsAirConditionerWorking] =
-        useState(false);
-
+    const [isAirConditionerWorking, setIsAirConditionerWorking] = useState(false);
     const [projector, setProjector] = useState(false);
-
     const [isProjectorWorking, setIsProjectorWorking] = useState(false);
-
     const [bigTables, setBigTables] = useState(false);
-
     const [sinks, setSinks] = useState(false);
-
     const [key, setKey] = useState(false);
-
     const [reservable, setReservable] = useState(false);
-
     const [administrative, setAdministrative] = useState(false);
+    const [responsible, setResponsible] = useState<UserT | null>(null);
 
     const [isConfirmationDOpen, setIsConfirmationDOpen] = useState(false);
-
     const [isHistoricOpen, setIsHistoricOpen] = useState(false);
 
     const handleChangeAir = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +161,7 @@ export default function CreateRoomDialog({
             setKey(selectedRoom.hasKey);
             setReservable(selectedRoom.reservable);
             setAdministrative(selectedRoom.administrative);
+            setResponsible(activeUsersList.find(u => u.id === selectedRoom.responsibleId) ?? null);
         }
     }, [selectedRoom]);
 
@@ -242,6 +220,7 @@ export default function CreateRoomDialog({
             hasKey: key,
             reservable: reservable,
             administrative: administrative,
+            responsibleId: responsible?.id
         };
 
 
@@ -445,6 +424,28 @@ export default function CreateRoomDialog({
                                         );
                                     }}
                                 ></TextField>
+
+                                <Autocomplete
+                                    value={responsible}
+                                    onChange={(
+                                        _event: any,
+                                        newValue: UserT | null
+                                    ) => {
+                                        setResponsible(newValue);
+                                    }}
+                                    id="controllable-states-demo"
+                                    options={activeUsersList}
+                                    getOptionLabel={(user: UserT) => {
+                                        return user.name;
+                                    }}
+                                    sx={{ flexGrow: 1 }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Responsável pela sala"
+                                        />
+                                    )}
+                                />
                             </Stack>
                             <Divider orientation="vertical" flexItem />
                             <Stack>
