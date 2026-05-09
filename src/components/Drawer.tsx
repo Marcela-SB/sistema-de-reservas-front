@@ -204,26 +204,25 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                                 </ListItem>
                             </List>
                             <Divider />
-                        </>
-                    ) : null}
-
-                    {userPower >= 2 ? (
-                        <>
                             <List>
-                                <ListItem key={"Criar espaço"} disablePadding>
-                                    <ListItemButton
-                                        onClick={() => {
-                                            setRoomCreateDIsOpen(true);
-                                        }}
-                                    >
-                                        <ListItemIcon>
-                                            <MeetingRoom />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={"Criar espaço"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
+                                {userPower >= 2 ? (
+                                    <>
+                                        <ListItem key={"Criar espaço"} disablePadding>
+                                            <ListItemButton
+                                                onClick={() => {
+                                                    setRoomCreateDIsOpen(true);
+                                                }}
+                                            >
+                                                <ListItemIcon>
+                                                    <MeetingRoom />
+                                                </ListItemIcon>
+                                                <ListItemText
+                                                    primary={"Criar espaço"}
+                                                />
+                                            </ListItemButton>
+                                        </ListItem>
+                                    </>
+                                ) : null}
                                 <ListItem
                                     key={"Consultar espaços"}
                                     disablePadding
@@ -388,6 +387,7 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                 setIsOpen={setRoomModifyDIsOpen}
                 setSelectedRoom={setSelectedRoom}
                 setCreateRoom={setRoomCreateDIsOpen}
+                onlyView={userPower===1}
             />
             <ModifyUserListD
                 isOpen={userModifyDIsOpen}

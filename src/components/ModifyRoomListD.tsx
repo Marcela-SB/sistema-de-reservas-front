@@ -12,12 +12,14 @@ type Props = {
     setIsOpen: (b: boolean) => void;
     setSelectedRoom: (r: RoomT) => void;
     setCreateRoom: (b: boolean) => void;
+    onlyView?: boolean;
 };
 function ModifyRoomListD({
     isOpen,
     setIsOpen,
     setSelectedRoom,
     setCreateRoom,
+    onlyView
 }: Props) {
     const { roomList, activeUsersList } = React.useContext(StateContext);
 
@@ -114,13 +116,15 @@ function ModifyRoomListD({
                                                 )
                                             }
                                         />
-                                        <ListItemSecondaryAction>
-                                            <IconButton
-                                                onClick={() => selectRoom(room)}
-                                            >
-                                                <Send></Send>
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
+                                        { !onlyView && (
+                                            <ListItemSecondaryAction>
+                                                <IconButton
+                                                    onClick={() => selectRoom(room)}
+                                                >
+                                                    <Send></Send>
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
+                                        )}
                                     </ListItem>
                                     <Divider
                                         key={`modroomlistdivider-${room.id}`}
