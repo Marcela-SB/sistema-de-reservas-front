@@ -131,52 +131,53 @@ export default function FullScreenActionDialog({
     const [formComment, setFormComment] = useState("");
     const [formSchedule, setFormSchedule] = useState<boolean[][]>(baseInternalSchedule);
 
-    const activeDays = getEnabledDays(formStartDay, formEndDay, formIsOneDay);
+    const activeDays = React.useMemo(() => 
+        getEnabledDays(formStartDay, formEndDay, formIsOneDay), 
+    [formStartDay, formEndDay, formIsOneDay]);
 
     React.useEffect(() => {
         if (selectedReservation) {
+            const start = dayjs(selectedReservation.reservationStart);
+            const end = dayjs(selectedReservation.reservationEnd);
+            const isOneDay = start.isSame(end, "day");
+
             setFormName(selectedReservation.name);
+            setFormStartDay(start);
+            setFormEndDay(end);
+            setFormIsOneDay(isOneDay);
+            
+            const rooms = selectedReservation.roomsId
+                .map(id => roomList.find(r => r.id === id))
+                .filter((r): r is RoomT => !!r);
+            setFormRoom(rooms);
 
-            const roomListToPush : RoomT[] = []
-            for (const roomId of selectedReservation.roomsId) {
-                const room : RoomT = getRoomById(
-                    roomId,
-                    roomList
-                );
-                roomListToPush.push(room)
-            }
-            setFormRoom(roomListToPush);
+            const user = activeUsersList.find(u => u.id === selectedReservation.reservatedToId);
+            setFormReservatedTo(user || null);
 
-            setFormCourse(selectedReservation.course);
-
-            setFormStartDay(dayjs(selectedReservation.reservationStart));
-
-            setFormEndDay(dayjs(selectedReservation.reservationEnd));
-
-            if (
-                dayjs(selectedReservation.reservationStart).isSame(
-                    dayjs(selectedReservation.reservationEnd),
-                    "day"
-                )
-            ) {
-                setFormIsOneDay(true);
-            } else {
-                setFormIsOneDay(false);
-            }
-
-            const user: UserT = getUserById(
-                selectedReservation.reservatedToId,
-                activeUsersList
-            );
-            setFormReservatedTo(user);
-
+            setFormCourse(selectedReservation.course as Courses);
             setFormSchedule(selectedReservation.schedule);
-
-            setFormComment(selectedReservation.comment);
-
+            setFormComment(selectedReservation.comment || "");
             setFormSlots(selectedReservation.slots);
         }
-    }, [selectedReservation]);
+    }, [selectedReservation, roomList, activeUsersList]);
+
+    //Limpeza de linhas selecionadas que foram bloqueadas
+    React.useEffect(() => {
+        if (selectedReservation) return;
+        setFormSchedule((currentSchedule) => {
+            const newSchedule = currentSchedule.map((daySchedule, dayIndex) => {
+                if (!activeDays.includes(dayIndex)) {
+                    return daySchedule.map(() => false);
+                }
+                return daySchedule;
+            });
+
+            if (JSON.stringify(newSchedule) !== JSON.stringify(currentSchedule)) {
+                return newSchedule;
+            }
+            return currentSchedule;
+        });
+    }, [activeDays, selectedReservation]);
 
     const createMutation = useMutation({
         mutationFn: (header) => {
@@ -497,9 +498,12 @@ export default function FullScreenActionDialog({
                                 <DatePicker
                                     label="Inicio da reserva"
                                     value={formStartDay}
-                                    onChange={(newValue) =>
+                                    onChange={(newValue) => {
                                         setFormStartDay(newValue)
-                                    }
+                                        if (formIsOneDay || (newValue && formEndDay && newValue.isAfter(formEndDay))) {
+                                            setFormEndDay(newValue);
+                                        }
+                                    }}
                                     disablePast
                                     sx={{ width: "100%" }}
                                 />
@@ -525,32 +529,30 @@ export default function FullScreenActionDialog({
                                 sx={{ width: "100%", marginX: 0 }}
                             />
                         </Grid>
-                        {formIsOneDay == true ? (
-                            <Grid item xs={3} paddingX={1} paddingTop={1}>
-                                <DemoContainer components={["DatePicker"]}>
-                                    <DatePicker
-                                        label="Final da reserva"
-                                        value={formEndDay}
-                                        disabled
-                                        sx={{ width: "100%" }}
-                                    />
-                                </DemoContainer>
-                            </Grid>
-                        ) : (
-                            <Grid item xs={3} paddingX={1} paddingTop={1}>
-                                <DemoContainer components={["DatePicker"]}>
-                                    <DatePicker
-                                        label="Final da reserva"
-                                        value={formEndDay}
-                                        onChange={(newValue) =>
-                                            setFormEndDay(newValue)
+                        <Grid item xs={3} paddingX={1} paddingTop={1}>
+                            <DemoContainer components={["DatePicker"]}>
+                                <DatePicker
+                                    label="Final da reserva"
+                                    value={
+                                        formIsOneDay 
+                                            ? formStartDay 
+                                            : (formEndDay?.isBefore(formStartDay) ? formStartDay : formEndDay)
+                                    }
+                                    minDate={formStartDay || dayjs()}
+                                    slotProps={{
+                                        textField: {
+                                            helperText: formEndDay && formStartDay && formEndDay.isBefore(formStartDay, 'day') 
+                                                ? "Data final não pode ser anterior à inicial" 
+                                                : ""
                                         }
-                                        disablePast
-                                        sx={{ width: "100%" }}
-                                    />
-                                </DemoContainer>
-                            </Grid>
-                        )}
+                                    }}
+                                    onChange={(newValue) => setFormEndDay(newValue)}
+                                    disabled={formIsOneDay}
+                                    disablePast
+                                    sx={{ width: "100%" }}
+                                />
+                            </DemoContainer>
+                        </Grid>
                         <Grid item xs paddingX={1} paddingTop={2}>
                             <Autocomplete
                                 value={formReservatedTo}
