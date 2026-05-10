@@ -26,22 +26,29 @@ export default function FullScreenTableDialog({
         wIndex: number,
         hIndex: number
     ) => {
-        const holder = formSchedule;
-        holder[wIndex][hIndex] = event.target.checked;
-        setFormSchedule([...holder]);
+        const newSchedule = formSchedule.map((day, di) => 
+            di === wIndex 
+                ? day.map((val, hi) => (hi === hIndex ? event.target.checked : val))
+                : day
+        );
+        setFormSchedule(newSchedule);
     };
 
-    React.useEffect(() => {
-        if (formSchedule.length <= 6) {
-            const novoHorario = Array(16).fill(false);
-            const novoFormSchedule = [novoHorario, ...formSchedule];
-            setFormSchedule(novoFormSchedule);
-        }
-    }, [formSchedule, setFormSchedule]);
+    const handleToggleRow = (weekIndex: number) => {
+        // Verifica se todos os itens daquela linha já estão marcados
+        const allChecked = formSchedule[weekIndex].every(val => val);
+
+        const newSchedule = formSchedule.map((day, di) =>
+            di === weekIndex 
+                ? day.map(() => !allChecked) // Se todos estavam marcados, desmarca; senão, marca tudo
+                : day
+        );
+        setFormSchedule(newSchedule);
+    };
 
     return (
         <TableContainer component={Paper} sx={{ marginX: "auto" }}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
                 <TableHead>
                     <TableRow>
                         <TableCell />
@@ -85,17 +92,39 @@ export default function FullScreenTableDialog({
                                 key={wd.name}
                                 sx={{ 
                                     backgroundColor: isDayDisabled ? "rgba(0, 0, 0, 0.04)" : "inherit",
-                                    transition: "0.3s"
+                                    transition: "0.3s",
                                 }}
                             >
                                 <TableCell 
                                     sx={{ 
                                         textAlign: 'center',
                                         color: isDayDisabled ? "text.disabled" : "text.primary",
-                                        fontWeight: isDayDisabled ? 400 : 600 
+                                        fontWeight: isDayDisabled ? 400 : 600,
+                                        minWidth: 120
                                     }}
                                 >
-                                    {wd.name}
+                                    <div 
+                                        style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '8px', 
+                                            paddingLeft: '8px',
+                                            fontSize: '120%',
+                                        }}
+                                    >
+                                        <Checkbox
+                                            size="medium"
+                                            disabled={isDayDisabled}
+                                            // Estado indeterminado se alguns estiverem marcados, mas não todos
+                                            indeterminate={
+                                                formSchedule[weekIndex].some(val => val) && 
+                                                !formSchedule[weekIndex].every(val => val)
+                                            }
+                                            checked={formSchedule[weekIndex].every(val => val)}
+                                            onChange={() => handleToggleRow(weekIndex)}
+                                        />
+                                        {wd.name}
+                                    </div>
                                 </TableCell>
 
                                 {tableSchedule.map((schedule, hourIndex) => {
@@ -115,51 +144,18 @@ export default function FullScreenTableDialog({
                                                 size="medium"
                                                 align="center"
                                             >
-                                                {formSchedule[weekIndex][
-                                                    hourIndex
-                                                ] ? (
+                                                {formSchedule[weekIndex] ? (
                                                     <Checkbox
                                                         disabled={isDayDisabled}
                                                         sx={{
-                                                            "& .MuiSvgIcon-root": {
-                                                                fontSize: 26,
+                                                            "& .MuiSvgIcon-root": { 
+                                                                fontSize: 26 
                                                             },
                                                         }}
-                                                        checked={
-                                                            formSchedule[weekIndex][
-                                                                hourIndex
-                                                            ]
-                                                        }
-                                                        onChange={(e) => {
-                                                            handleChange(
-                                                                e,
-                                                                weekIndex,
-                                                                hourIndex
-                                                            );
-                                                        }}
+                                                        checked={!!formSchedule[weekIndex][hourIndex]}
+                                                        onChange={(e) => handleChange(e, weekIndex, hourIndex)}
                                                     />
-                                                ) : (
-                                                    <Checkbox
-                                                        disabled={isDayDisabled}
-                                                        sx={{
-                                                            "& .MuiSvgIcon-root": {
-                                                                fontSize: 26,
-                                                            },
-                                                        }}
-                                                        checked={
-                                                            formSchedule[weekIndex][
-                                                                hourIndex
-                                                            ]
-                                                        }
-                                                        onChange={(e) => {
-                                                            handleChange(
-                                                                e,
-                                                                weekIndex,
-                                                                hourIndex
-                                                            );
-                                                        }}
-                                                    />
-                                                )}
+                                                ) : null}
                                             </TableCell>
                                         </Tooltip>
                                     );
