@@ -53,11 +53,22 @@ export default function CheckUserDialog({
 
     const [showPassword, setShowPassword] = React.useState(false);
 
+    const passwordInputRef = React.useRef<HTMLInputElement>(null);
+
     React.useEffect(() => {
         if (chekedUser) {
             setUsername(chekedUser.username);
         }
     }, [chekedUser]);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            const timer = setTimeout(() => {
+                passwordInputRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -101,7 +112,7 @@ export default function CheckUserDialog({
             <Dialog
                 ref={dialogRef}
                 onClose={() => {
-                    closeDialog;
+                    closeDialog();
                 }}
                 open={isOpen}
                 PaperComponent={PaperComponent}
@@ -169,6 +180,7 @@ export default function CheckUserDialog({
                             </InputLabel>
                             <OutlinedInput
                                 id="outlined-adornment-password"
+                                inputRef={passwordInputRef}
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(
