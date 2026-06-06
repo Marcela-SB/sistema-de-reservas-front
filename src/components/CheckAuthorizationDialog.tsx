@@ -9,6 +9,7 @@ import { TransitionProps } from "@mui/material/transitions";
 import { StateContext } from "../context/ReactContext";
 import {
     Autocomplete,
+    Box,
     Checkbox,
     Chip,
     Container,
@@ -21,7 +22,7 @@ import { RoomT } from "../types/RoomT";
 import dayjs, { Dayjs } from "dayjs";
 import { UserT } from "../types/UserT";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { DatePicker } from "@mui/x-date-pickers";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import axiosInstance from "../utils/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import getRoomById from "../utils/getRoomById";
@@ -79,8 +80,12 @@ export default function CheckAuthorizationDialog({
         setAuthorizationProfessor(null);
         setAuthorizationResponsible(null);
 
-        setAuthorizationStart(dayjs());
-        setAuthorizationEnd(dayjs());
+        setAuthorizationStart(null);
+        setAuthorizationEnd(null);
+
+        setAuthorizationStartTime(null);
+        setAuthorizationEndTime(null);
+
         setComment(null);
 
         setIsOpen(false);
@@ -93,32 +98,18 @@ export default function CheckAuthorizationDialog({
         });
     };
 
-    const [authorizationRoomsId, setAuthorizatioRoomsId] = useState<RoomT[]>(
-        []
-    );
-
-    const [authorizationProfessor, setAuthorizationProfessor] =
-        useState<UserT | null>(null);
-
+    const [authorizationRoomsId, setAuthorizatioRoomsId] = useState<RoomT[]>([]);
+    const [authorizationProfessor, setAuthorizationProfessor] = useState<UserT | null>(null);
     const [authorizaredToId, setAuthorizaredToId] = useState<UserT[]>([]);
-
-    const [authorizationResponsible, setAuthorizationResponsible] =
-        useState<UserT | null>(null);
-
-    const [authorizationStart, setAuthorizationStart] = useState<Dayjs | null>(
-        dayjs()
-    );
-
-    const [authorizationEnd, setAuthorizationEnd] = useState<Dayjs | null>(
-        dayjs()
-    );
-
+    const [authorizationResponsible, setAuthorizationResponsible] = useState<UserT | null>(null);
+    const [authorizationStart, setAuthorizationStart] = useState<Dayjs | null>(null);
+    const [authorizationEnd, setAuthorizationEnd] = useState<Dayjs | null>(null);
+    const [autorizationStartTime, setAuthorizationStartTime] = useState<Dayjs | null>(null);
+    const [autorizationEndTime, setAuthorizationEndTime] = useState<Dayjs | null>(null);
     const [comment, setComment] = useState<string | null>(null);
 
     const [isConfirmationDOpen, setIsConfirmationDOpen] = useState(false);
-
     const [checkDialogIsOpen, setCheckDialogIsOpen] = useState(false);
-
     const [checkSucess, setCheckSucess] = useState(false);
 
     const editMutation = useMutation({
@@ -171,6 +162,18 @@ export default function CheckAuthorizationDialog({
                 dayjs(selectedAuthorization.authorizationStart)
             );
             setAuthorizationEnd(dayjs(selectedAuthorization.authorizationEnd));
+
+            setAuthorizationStartTime(
+                selectedAuthorization.startTime 
+                    ? dayjs(selectedAuthorization.startTime, "HH:mm") 
+                    : null
+            );
+
+            setAuthorizationEndTime(
+                selectedAuthorization.endTime 
+                    ? dayjs(selectedAuthorization.endTime, "HH:mm") 
+                    : null
+            );
 
             setComment(selectedAuthorization.comment);
         }
@@ -486,34 +489,47 @@ export default function CheckAuthorizationDialog({
                                         />
                                     )}
                                 />
-                                <DemoContainer
-                                    components={["DatePicker"]}
-                                    sx={{ width: "100%" }}
-                                >
+                                <Stack direction={"row"} spacing={2} sx={{ width: "100%", boxSizing: "border-box"}}>
                                     <DatePicker
-                                        label="Inicio da autorização"
+                                        label=" Data de início"
                                         value={authorizationStart}
                                         onChange={(newValue) =>
                                             setAuthorizationStart(newValue)
                                         }
-                                        sx={{ width: "100%" }}
+                                        sx={{ flex: 1 }}
                                         readOnly
                                     />
-                                </DemoContainer>
-                                <DemoContainer
-                                    components={["DatePicker"]}
-                                    sx={{ width: "100%" }}
-                                >
+
                                     <DatePicker
-                                        label="Final da reserva"
+                                        label=" Data de fim"
                                         value={authorizationEnd}
                                         onChange={(newValue) =>
                                             setAuthorizationEnd(newValue)
                                         }
-                                        sx={{ width: "100%" }}
+                                        sx={{ flex: 1 }}
                                         readOnly
                                     />
-                                </DemoContainer>
+                                </Stack>
+
+                                <Stack direction={"row"} spacing={2} sx={{ width: "100%", boxSizing: "border-box"}}>
+                                    <TimePicker
+                                        label="Horário de início"
+                                        value={autorizationStartTime}
+                                        onChange={(newValue) => 
+                                            setAuthorizationStartTime(newValue)
+                                        }
+                                        readOnly
+                                    />
+                                    <TimePicker
+                                        label="Horário de fim"
+                                        value={autorizationEndTime}
+                                        onChange={(newValue) => 
+                                            setAuthorizationEndTime(newValue)
+                                        }
+                                        readOnly
+                                    />
+                                </Stack>
+                                
                             </Stack>
                         </Stack>
                         <TextField

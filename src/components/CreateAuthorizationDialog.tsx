@@ -105,30 +105,16 @@ export default function CreateAuthorizationDialog({
     } = React.useContext(StateContext);
 
     const [authName, setAuthName] = useState<string>('');
-
-    const [authorizationRoomsId, setAuthorizatioRoomsId] = useState<RoomT[]>(
-        []
-    );
-
-    const [authorizaredToProfessorId, setAuthorizaredToProfessorId] =
-        useState<UserT | null>(null);
-
+    const [authorizationRoomsId, setAuthorizatioRoomsId] = useState<RoomT[]>([]);
+    const [authorizaredToProfessorId, setAuthorizaredToProfessorId] = useState<UserT | null>(null);
     const [authorizaredToId, setAuthorizaredToId] = useState<UserT[]>([]);
-
-    const [authorizationStart, setAuthorizationStart] = useState<Dayjs | null>(
-        dayjs()
-    );
-
-    const [authorizationEnd, setAuthorizationEnd] = useState<Dayjs | null>(
-        dayjs()
-    );
-
+    const [authorizationStart, setAuthorizationStart] = useState<Dayjs | null>(dayjs());
+    const [authorizationEnd, setAuthorizationEnd] = useState<Dayjs | null>(dayjs());
+    const [authorizationStartTime, setAuthorizationStartTime] = useState<Dayjs | null>(null);
+    const [authorizationEndTime, setAuthorizationEndTime] = useState<Dayjs | null>(null);
     const [comment, setComment] = useState<string | null>(null);
-
     const [isDaily, setIsDaily] = useState(false);
-
     const [timeLimit, setTimeLimit] = useState(false)
-
     const [isConfirmationDOpen, setIsConfirmationDOpen] = useState(false);
 
     React.useEffect(() => {
@@ -174,6 +160,12 @@ export default function CreateAuthorizationDialog({
             } else {
                 setIsDaily(false);
             }
+
+            setTimeLimit(!!selectedAuthorization.startTime);
+
+            setAuthorizationStartTime(selectedAuthorization.startTime ? dayjs(selectedAuthorization.startTime, "HH:mm:ss") : null);
+            
+            setAuthorizationEndTime(selectedAuthorization.endTime ? dayjs(selectedAuthorization.endTime, "HH:mm:ss") : null);
 
             setComment(selectedAuthorization.comment);
         }
@@ -243,6 +235,9 @@ export default function CreateAuthorizationDialog({
             }
         }
 
+        const startTime = timeLimit && authorizationStartTime ? authorizationStartTime.format("HH:mm:ss") : null;
+        const endTime = timeLimit && authorizationEndTime ? authorizationEndTime.format("HH:mm:ss") : null;
+
         const header = {
             name: authName,
             roomsId: roomIdList,
@@ -251,6 +246,8 @@ export default function CreateAuthorizationDialog({
             authorizationResponsibleId: loggedUser.id,
             authorizationStart: formatedStart,
             authorizationEnd: formatedEnd,
+            startTime: startTime,
+            endTime: endTime,
             comment: comment,
         };
 
@@ -646,10 +643,10 @@ export default function CreateAuthorizationDialog({
                                 >
                                     <TimePicker
                                         label="Horario de início"
-                                        // value={authorizationStart}
-                                        // onChange={(newValue) =>
-                                        //     setAuthorizationStart(newValue)
-                                        // }
+                                        value={authorizationStartTime}
+                                        onChange={(newValue) =>
+                                            setAuthorizationStartTime(newValue)
+                                        }
                                         sx={{ width: "100%" }}
                                         disabled={!timeLimit}
                                     />
@@ -662,10 +659,10 @@ export default function CreateAuthorizationDialog({
                                     >
                                         <TimePicker
                                             label="Horario final"
-                                            // value={authorizationEnd}
-                                            // onChange={(newValue) =>
-                                            //     setAuthorizationEnd(newValue)
-                                            // }
+                                            value={authorizationEndTime}
+                                            onChange={(newValue) =>
+                                                setAuthorizationEndTime(newValue)
+                                            }
                                             sx={{ width: "100%" }}
                                             disabled={!timeLimit}
                                         />
