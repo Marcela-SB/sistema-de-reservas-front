@@ -120,7 +120,8 @@ export default function CreateUserDialog({
             setSnackBarSeverity("success");
         },
         onError: (error) => {
-            setSnackBarText("Houve um problema na requisição!");
+            const errorMessage = error.response?.data?.message || "Houve um problema na requisição!";
+            setSnackBarText(errorMessage);
             setSnackBarSeverity("error");
         },
     });
@@ -136,7 +137,8 @@ export default function CreateUserDialog({
             setSnackBarSeverity("success");
         },
         onError: (error) => {
-            setSnackBarText("Houve um problema na requisição!");
+            const errorMessage = error.response?.data?.message || "Houve um problema na requisição!";
+            setSnackBarText(errorMessage);
             setSnackBarSeverity("error");
         },
     });
