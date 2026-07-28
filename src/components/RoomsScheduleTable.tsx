@@ -7,8 +7,12 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { tableSchedule } from "../types/tableSchedules";
-import { Checkbox, Tooltip } from "@mui/material";
+import { Autocomplete, Checkbox, Chip, TextField, Tooltip } from "@mui/material";
 import { weekDays } from "../types/weekDays";
+import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined } from "@mui/icons-material";
+import { RoomT } from "../types/RoomT";
+import { useState } from "react";
+import { StateContext } from "../context/ReactContext";
 
 type Props = {
     formSchedule: boolean[][];
@@ -16,7 +20,7 @@ type Props = {
     activeDays: number[];
 };
 
-export default function FullScreenTableDialog({
+export default function RoomsScheduleTable({
     formSchedule,
     setFormSchedule,
     activeDays
@@ -46,12 +50,16 @@ export default function FullScreenTableDialog({
         setFormSchedule(newSchedule);
     };
 
+    const [formRoom, setFormRoom] = useState<RoomT[]>([]);
+    const { roomList } = React.useContext(StateContext);
+
     return (
-        <TableContainer component={Paper} sx={{ marginX: "auto" }}>
+        <TableContainer component={Paper} sx={{ marginX: "auto", border: 'solid 1px lightgray' }}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
                 <TableHead>
                     <TableRow>
-                        <TableCell />
+                        
+                        <TableCell></TableCell>
                         {tableSchedule.map((schedule) => {
                             return (
                                 <Tooltip
@@ -100,7 +108,8 @@ export default function FullScreenTableDialog({
                                         textAlign: 'center',
                                         color: isDayDisabled ? "text.disabled" : "text.primary",
                                         fontWeight: isDayDisabled ? 400 : 600,
-                                        minWidth: 120
+                                        minWidth: 120,
+                                        borderRight: 'solid 1px gray'
                                     }}
                                 >
                                     <div 

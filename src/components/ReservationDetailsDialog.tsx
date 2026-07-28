@@ -35,8 +35,6 @@ type Props = {
     reservation: ReservationT;
     setReservationToEdit: (r: ReservationT) => void;
     setEditIsOpen: (b: boolean) => void;
-    //selectedUser: UserT | null;
-    //setSelectedUser: (user: UserT | null) => void;
 };
 
 export default function ReservationDetailsDialog({
@@ -53,18 +51,26 @@ export default function ReservationDetailsDialog({
     };
 
     const handleEdit = () => {
-        handleClose()
-        setReservationToEdit(reservation)
-        setEditIsOpen(true)
-    }
+        handleClose();
+        setReservationToEdit(reservation);
+        setEditIsOpen(true);
+    };
 
     const reservationRoomList: RoomT[] = [];
-    for (const roomId of reservation.roomsId) {
-        reservationRoomList.push(getRoomById(roomId, roomList));
+    if (Array.isArray(reservation.schedules)) {
+        for (const scheduleObj of reservation.schedules) {
+            if (Array.isArray(scheduleObj.roomsId)) {
+                for (const roomId of scheduleObj.roomsId) {
+                    const foundRoom = getRoomById(roomId, roomList);
+                    if (foundRoom && !reservationRoomList.some((r) => r.id === foundRoom.id)) {
+                        reservationRoomList.push(foundRoom);
+                    }
+                }
+            }
+        }
     }
 
     const startDate = dayjs(reservation.reservationStart).format("DD/MM/YYYY");
-
     const endDate = dayjs(reservation.reservationEnd).format("DD/MM/YYYY");
             
     const dialogRef = React.useRef<HTMLDivElement>(null);
@@ -86,14 +92,16 @@ export default function ReservationDetailsDialog({
                     elevation: 0,
                     sx: {
                         border: "solid 1px #004586",
+                        maxHeight: "80vh",
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "hidden",
                     },
                 }}
                 disableEnforceFocus
                 style={{
-                    top: "30%",
-                    left: "30%",
-                    height: "fit-content",
-                    width: "fit-content",
+                    top: "10%",
+                    left: "25%",
                 }}
             >
                 <AppBar
@@ -114,7 +122,7 @@ export default function ReservationDetailsDialog({
                                 edge="start"
                                 color="inherit"
                                 onClick={handleEdit}
-                                aria-label="close"
+                                aria-label="edit"
                             >
                                 <Edit />
                             </IconButton>
@@ -129,7 +137,16 @@ export default function ReservationDetailsDialog({
                         </Stack>
                     </Toolbar>
                 </AppBar>
-                <Box sx={{ padding: 2, flexGrow: 1 }}>
+                <Box 
+                    sx={{ 
+                        padding: 2, 
+                        flexGrow: 1, 
+                        overflowY: "auto", 
+                        minHeight: 0,
+                        display: "flex",
+                        flexDirection: "column"
+                    }}
+                >
                     <Stack 
                         direction={"column"}
                         spacing={2} 
@@ -159,20 +176,8 @@ export default function ReservationDetailsDialog({
                                     Reservador por: {getUserById(reservation.reservatedToId, allUsersList)?.name}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
-                                    Sala reservada: {reservationRoomList.map((room) => {
-                                            return (
-                                                <>
-                                                    {room?.name} - {room?.roomNumber},
-                                                </>
-                                            );
-                                        })}
-                                </Typography>
-
-                                <Typography variant="body1" noWrap>
                                     Duração da reserva: {startDate}
-                                    {reservation.reservationEnd
-                                        ? " - " + endDate
-                                        : null}
+                                    {reservation.reservationEnd.split('T')[0] !== reservation.reservationStart.split('T')[0] && ` - ${endDate}`}
                                 </Typography>
                                 <Typography variant="body1" noWrap>
                                     Responsavel pela reserva: {getUserById(reservation.reservationResponsibleId, allUsersList)?.name}
@@ -189,11 +194,29 @@ export default function ReservationDetailsDialog({
                             </Box>
                         </Stack>
 
-                        <ReservationDetailsTable
-                            formSchedule={reservation.schedule}
-                            reservationStart={reservation.reservationStart}
-                            reservationEnd={reservation.reservationEnd}
-                        />
+                        {Array.isArray(reservation.schedules) && reservation.schedules.map((singleSchedule, index) => {
+                            // Mapeia os IDs das salas do schedule atual para os objetos reais de sala
+                            const scheduleRooms = (singleSchedule.roomsId || []).map((roomId) => 
+                                getRoomById(roomId, roomList)
+                            ).filter(Boolean);
+
+                            return (
+                                <Box key={`schedule-block-${index}`} display="flex" flexDirection="column" gap={1}>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        <b>Salas reservadas neste horário:</b> {scheduleRooms.map((room, rIndex) => (
+                                            <span key={room?.id || rIndex}>
+                                                {room?.name} - {room?.roomNumber}{rIndex < scheduleRooms.length - 1 ? ", " : ""}
+                                            </span>
+                                        ))}
+                                    </Typography>
+                                    <ReservationDetailsTable
+                                        formSchedule={singleSchedule.schedule}
+                                        reservationStart={reservation.reservationStart}
+                                        reservationEnd={reservation.reservationEnd}
+                                    />
+                                </Box>
+                            );
+                        })}
                     </Stack>
                 </Box>
             </Dialog>

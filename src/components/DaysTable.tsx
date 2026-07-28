@@ -397,19 +397,17 @@ export default function DaysTable({
                                                     </Box>
                                                 </Stack>
                                             </TableCell>
-                                            {roomSchedule.map(
+                                            {roomSchedule?.map(   // Protege caso roomSchedule venha nulo/undefined
                                                 (hourschedule, dayIndex) => {
                                                     
-
                                                     let passedSchedule = null;
                                                     let passedSpan = 1;
-                                                    if (hourschedule[0]) {
-                                                        passedSchedule =
-                                                            hourschedule[0];
-                                                        passedSpan =
-                                                            hourschedule[1];
-                                                        cellsToIgnore =
-                                                            hourschedule[1] - 1;
+                                                    
+                                                    // Proteção contra hourschedule nulo/indefinido antes de ler o índice [0] ou [1]
+                                                    if (hourschedule?.[0]) {
+                                                        passedSchedule = hourschedule[0];
+                                                        passedSpan = hourschedule[1] ?? 1;
+                                                        cellsToIgnore = (hourschedule[1] ?? 1) - 1;
                                                         spanCount += passedSpan;
                                                     } else {
                                                         spanCount++;
@@ -418,37 +416,27 @@ export default function DaysTable({
                                                     return (
                                                         <DaysTableCell
                                                             key={`daystablecell ${room.id}-${roomArrayIndex}-${dayIndex}`}
-                                                            schedule={
-                                                                passedSchedule
-                                                            }
+                                                            schedule={passedSchedule}
                                                             index={dayIndex}
                                                             span={passedSpan}
-                                                            handleClick={
-                                                                handleCellClick
-                                                            }
-                                                            roomName={room.name+' '+room.roomNumber}
+                                                            handleClick={handleCellClick}
+                                                            roomName={`${room.name ?? ''} - ${room.roomNumber ?? ''}`.trim()}
                                                         />
                                                     );
                                                 }
                                             )}
-                                            {[...Array(16 - spanCount)].map(
+
+                                            {[...Array(Math.max(0, 16 - spanCount))].map(
                                                 (e, i) => {
                                                     spanCount++;
                                                     return (
                                                         <DaysTableCell
-                                                            key={`daystablecell ${
-                                                                room.id
-                                                            }-${roomArrayIndex}-${
-                                                                cellsIgnored + i
-                                                            }`}
+                                                            key={`daystablecell ${room.id}-${roomArrayIndex}-${cellsIgnored + i}`}
                                                             schedule={null}
-                                                            index={
-                                                                cellsIgnored + i
-                                                            }
+                                                            index={cellsIgnored + i}
                                                             span={1}
-                                                            handleClick={
-                                                                handleCellClick
-                                                            }
+                                                            handleClick={handleCellClick}
+                                                            roomName={`${room.name ?? ''} - ${room.roomNumber ?? ''}`.trim()}
                                                         />
                                                     );
                                                 }

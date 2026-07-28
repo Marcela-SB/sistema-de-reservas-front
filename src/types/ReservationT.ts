@@ -6,7 +6,7 @@ export type ReservationT = {
     reservationResponsibleId: string;
     reservatedToId: string;
     creationDate: string; 
-    schedule: boolean[][];
+    schedules: RoomsSchedule[];
     reservationStart: string; 
     reservationEnd: string; 
     name:string;
@@ -14,4 +14,9 @@ export type ReservationT = {
     course: Courses;
     slots: number;
   };
-  
+
+export type RoomsSchedule = {
+  id: string;
+  roomsId: string[];
+  schedule: boolean[][];
+}
