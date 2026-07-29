@@ -528,7 +528,7 @@ export default function FullScreenActionDialog({
                                         <Autocomplete
                                             multiple
                                             options={roomList || []}
-                                            getOptionLabel={(room) => room.name}
+                                            getOptionLabel={(room) => room.name +" - "+ room.roomNumber}
                                             value={selectedRoomsObjects}
                                             onChange={(_e, newValue) => {
                                                 const ids = newValue.map((r) => r.id);
