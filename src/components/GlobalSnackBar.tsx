@@ -29,7 +29,7 @@ function GlobalSnackBar({}: Props) {
     return (
         <Snackbar
             open={isSnackBarOpen}
-            autoHideDuration={3000}
+            autoHideDuration={5000}
             onClose={handleClose}
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         >
