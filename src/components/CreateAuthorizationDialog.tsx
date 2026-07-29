@@ -119,7 +119,7 @@ export default function CreateAuthorizationDialog({
 
     React.useEffect(() => {
         if (selectedAuthorization) {
-            console.log(selectedAuthorization);
+            // console.log(selectedAuthorization);
 
             setAuthName(selectedAuthorization.name)
 
@@ -251,7 +251,7 @@ export default function CreateAuthorizationDialog({
             comment: comment,
         };
 
-        console.log(header);
+        // console.log(header);
 
         if (selectedAuthorization) {
             editMutation.mutate(header);

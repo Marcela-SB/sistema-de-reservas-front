@@ -78,7 +78,7 @@ export default function ReservationDetailsTable({ formSchedule, reservationStart
                                 <TableCell align="center">{wd.name}</TableCell>
 
                                 {tableSchedule.map((schedule, hourIndex) => {
-                                    console.log(formSchedule);
+                                    // console.log(formSchedule);
 
                                     const valorTratado = () => {
                                         let value = false;
