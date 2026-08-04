@@ -203,6 +203,11 @@ export default function ReservationDetailsDialog({
                             return (
                                 <Box key={`schedule-block-${index}`} display="flex" flexDirection="column" gap={1}>
                                     <Typography variant="subtitle2" color="textSecondary">
+                                        {reservation.hasMultipleDates && <>
+                                            <b>Período:</b> {dayjs(singleSchedule.startDate).format("DD/MM/YYYY")} - {dayjs(singleSchedule.endDate).format("DD/MM/YYYY")}
+                                            <br />
+                                        </>}
+
                                         <b>Salas reservadas neste horário:</b> {scheduleRooms.map((room, rIndex) => (
                                             <span key={room?.id || rIndex}>
                                                 {room?.name} - {room?.roomNumber}{rIndex < scheduleRooms.length - 1 ? ", " : ""}

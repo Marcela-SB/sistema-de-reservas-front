@@ -26,6 +26,7 @@ import {
     styled,
     Switch,
     TextField,
+    Tooltip,
 } from "@mui/material";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { DatePicker } from "@mui/x-date-pickers";
@@ -100,9 +101,14 @@ export default function FullScreenActionDialog({
         setFormEndDay(dayjs());
         setFormReservatedTo(null);
         setFormRoomsSchedules([{
-            id: "", roomsId: [], schedule: baseInternalSchedule()
+            id: "", 
+            startDate: dayjs().format("YYYY-MM-DD"), 
+            endDate: dayjs().format("YYYY-MM-DD"), 
+            roomsId: [], 
+            schedule: baseInternalSchedule()
         }]);
         setFormIsOneDay(true);
+        setFormIsMultipleDays(false);
         setSelectedReservation(null);
         setFormComment("");
         setFormSlots(null);
@@ -120,17 +126,47 @@ export default function FullScreenActionDialog({
     const [formSlots, setFormSlots] = useState<number | null>(null);
     const [formCourse, setFormCourse] = useState<Courses>(Courses.NOCOURSE);
     const [formStartDay, setFormStartDay] = useState<Dayjs | null>(dayjs());
-    const [formIsOneDay, setFormIsOneDay] = useState(true);
     const [formEndDay, setFormEndDay] = useState<Dayjs | null>(dayjs());
+    const [formIsOneDay, setFormIsOneDay] = useState(true);
+    const [formIsMultipleDays, setFormIsMultipleDays] = useState(false);
     const [formReservatedTo, setFormReservatedTo] = useState<UserT | null>(null);
     const [formComment, setFormComment] = useState("");
     const [formRoomsSchedules, setFormRoomsSchedules] = useState<RoomsSchedule[]>([
-        { roomsId: [], schedule: baseInternalSchedule() }
+        {
+            id: "",
+            startDate: dayjs().format("YYYY-MM-DD"), 
+            endDate: dayjs().format("YYYY-MM-DD"),
+            roomsId: [], 
+            schedule: baseInternalSchedule()
+        }
     ]);
 
-    const activeDays = React.useMemo(() => 
-        getEnabledDays(formStartDay, formEndDay, formIsOneDay), 
-    [formStartDay, formEndDay, formIsOneDay]);
+    // Cálculo das extremidades para os inputs gerais quando "Múltiplas Datas" está ativo
+    const derivedDates = React.useMemo(() => {
+        const validDates = formRoomsSchedules.flatMap(s => [
+            dayjs(s.startDate), 
+            dayjs(s.endDate)
+        ]).filter(d => d.isValid());
+
+        if (validDates.length === 0) {
+            return { minStart: dayjs(), maxEnd: dayjs() };
+        }
+
+        validDates.sort((a, b) => a.valueOf() - b.valueOf());
+
+        return {
+            minStart: validDates[0],
+            maxEnd: validDates[validDates.length - 1]
+        };
+    }, [formRoomsSchedules]);
+
+    const effectiveStartDay = formIsMultipleDays ? derivedDates.minStart : formStartDay;
+    const effectiveEndDay = formIsMultipleDays ? derivedDates.maxEnd : formEndDay;
+
+    // activeDays global usado apenas quando "Múltiplas Datas" está desativado
+    const globalActiveDays = React.useMemo(() => 
+        getEnabledDays(effectiveStartDay, effectiveEndDay, formIsOneDay), 
+    [effectiveStartDay, effectiveEndDay, formIsOneDay]);
 
     React.useEffect(() => {
         if (selectedReservation) {
@@ -141,7 +177,8 @@ export default function FullScreenActionDialog({
             setFormName(selectedReservation.name);
             setFormStartDay(start);
             setFormEndDay(end);
-            setFormIsOneDay(isOneDay);
+            setFormIsOneDay(isOneDay && !selectedReservation.hasMultipleDates);
+            setFormIsMultipleDays(selectedReservation.hasMultipleDates);
 
             if (activeUsersList && activeUsersList.length > 0) {
                 const user = activeUsersList.find(u => u.id === selectedReservation.reservatedToId);
@@ -152,20 +189,26 @@ export default function FullScreenActionDialog({
             setFormRoomsSchedules(
                 selectedReservation.schedules && selectedReservation.schedules.length > 0
                     ? selectedReservation.schedules
-                    : [{ roomsId: selectedReservation.roomsId || [], schedule: baseInternalSchedule() }]
+                    : [{ 
+                        id: "", 
+                        startDate: start.format("YYYY-MM-DD"), 
+                        endDate: end.format("YYYY-MM-DD"), 
+                        roomsId: selectedReservation.roomsId || [], 
+                        schedule: baseInternalSchedule() 
+                      }]
             );
             setFormComment(selectedReservation.comment || "");
             setFormSlots(selectedReservation.slots);
         }
     }, [selectedReservation, roomList, activeUsersList]);
 
-    // Limpeza de linhas selecionadas que foram bloqueadas em todas as tabelas
+    // Limpeza de linhas selecionadas quando o activeDays global é alterado (Modo Múltiplas Datas desativado)
     React.useEffect(() => {
-        if (selectedReservation) return;
+        if (selectedReservation || formIsMultipleDays) return;
         setFormRoomsSchedules((current) => {
             return current.map((item) => {
                 const newSchedule = item.schedule.map((daySchedule, dayIndex) => {
-                    if (!activeDays.includes(dayIndex)) {
+                    if (!globalActiveDays.includes(dayIndex)) {
                         return daySchedule.map(() => false);
                     }
                     return daySchedule;
@@ -173,7 +216,7 @@ export default function FullScreenActionDialog({
                 return { ...item, schedule: newSchedule };
             });
         });
-    }, [activeDays, selectedReservation]);
+    }, [globalActiveDays, selectedReservation, formIsMultipleDays]);
 
     const createMutation = useMutation({
         mutationFn: (header) => {
@@ -262,12 +305,12 @@ export default function FullScreenActionDialog({
             }
         }
 
-        const formatedStart = formStartDay!
+        const formatedStart = effectiveStartDay!
             .startOf("D")
             .format("YYYY-MM-DDTHH:mm:ss");
-        let formatedEnd = formEndDay!.endOf("D").format("YYYY-MM-DDTHH:mm:ss");
+        let formatedEnd = effectiveEndDay!.endOf("D").format("YYYY-MM-DDTHH:mm:ss");
         if (formIsOneDay) {
-            formatedEnd = formStartDay!
+            formatedEnd = effectiveStartDay!
                 .endOf("D")
                 .format("YYYY-MM-DDTHH:mm:ss");
         }
@@ -278,6 +321,24 @@ export default function FullScreenActionDialog({
         //     item.roomsId.forEach(id => allRoomsIdSet.add(id));
         // });
 
+        let schedulesToSubmit = formRoomsSchedules;
+        let finalStart = effectiveStartDay;
+        let finalEnd = effectiveEndDay;
+
+        if (!formIsMultipleDays && formStartDay) {
+            const dateStr = formStartDay.format("YYYY-MM-DD");
+            const endStr = (formIsOneDay ? formStartDay : (formEndDay || formStartDay)).format("YYYY-MM-DD");
+            
+            finalStart = formStartDay;
+            finalEnd = formIsOneDay ? formStartDay : (formEndDay || formStartDay);
+
+            schedulesToSubmit = formRoomsSchedules.map(item => ({
+                ...item,
+                startDate: dateStr,
+                endDate: endStr
+            }));
+        }
+
         const header = {
             name: formName,
             // roomsId: Array.from(allRoomsIdSet),
@@ -286,6 +347,7 @@ export default function FullScreenActionDialog({
             reservationEnd: formatedEnd,
             reservatedToId: formReservatedTo!.id,
             reservationResponsibleId: loggedUser.id,
+            hasMultipleDates: formIsMultipleDays,
             schedules: formRoomsSchedules,
             comment: formComment,
             slots: formSlots,
@@ -441,8 +503,8 @@ export default function FullScreenActionDialog({
                         <Grid item xs={3} paddingX={1} paddingTop={1}>
                             <DemoContainer components={["DatePicker"]}>
                                 <DatePicker
-                                    label="Inicio da reserva"
-                                    value={formStartDay}
+                                    label={(formIsOneDay ? "Data" : "Início") + " da reserva"}
+                                    value={effectiveStartDay}
                                     onChange={(newValue) => {
                                         setFormStartDay(newValue)
                                         if (formIsOneDay || (newValue && formEndDay && newValue.isAfter(formEndDay))) {
@@ -450,39 +512,88 @@ export default function FullScreenActionDialog({
                                         }
                                     }}
                                     disablePast
+                                    disabled={formIsMultipleDays}
                                     sx={{ width: "100%" }}
                                 />
                             </DemoContainer>
                         </Grid>
                         <Grid item xs={3} paddingX={0} paddingTop={2}>
+                            {formIsOneDay ? (
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={formIsOneDay}
+                                            onChange={(event) => {
+                                                setFormIsOneDay(event.target.checked)
+                                            }}
+                                        />
+                                    }
+                                    labelPlacement="top"
+                                    label="Reserva unitária"
+                                    sx={{ width: "100%", marginX: 0 }}
+                                />
+                            ) : (
+                                <DemoContainer components={["DatePicker"]} sx={{ overflow: "visible", pt: 0 }}>
+                                    <DatePicker
+                                        label="Final da reserva"
+                                        value={effectiveEndDay}
+                                        minDate={effectiveStartDay || dayjs()}
+                                        onChange={(newValue) => setFormEndDay(newValue)}
+                                        disabled={formIsMultipleDays}
+                                        disablePast
+                                        sx={{ width: "100%" }}
+                                        slotProps={{
+                                            textField: (params) => {
+                                                // Capturamos os adornments originais que o MUI X gera (incluindo o botão funcional do calendário)
+                                                const existingEndAdornment = params.InputProps?.endAdornment;
+
+                                                return {
+                                                    ...params,
+                                                    InputProps: {
+                                                        ...params.InputProps,
+                                                        endAdornment: (
+                                                            <React.Fragment>
+                                                                {/* botão de fechar com Tooltip e sempre visível */}
+                                                                <Tooltip title="Reativar reserva unitária">
+                                                                    <IconButton 
+                                                                        size="small"
+                                                                        onClick={() => {
+                                                                            setFormIsOneDay(true);
+                                                                        }}
+                                                                        sx={{ color: "red" }}
+                                                                        disabled={formIsMultipleDays}
+                                                                    >
+                                                                        <Close fontSize="small" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                
+                                                                {/* Mantém intacto e funcional todo o conteúdo nativo (botão de abrir o calendário do MUI) */}
+                                                                {existingEndAdornment}
+                                                            </React.Fragment>
+                                                        ),
+                                                    },
+                                                };
+                                            },
+                                        }}
+                                    />
+                                </DemoContainer>
+                            )}
+                        </Grid>
+                        <Grid item xs={3} paddingX={0} paddingTop={2}>
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={formIsOneDay}
-                                        onChange={(event) => setFormIsOneDay(event.target.checked)}
+                                        checked={formIsMultipleDays}
+                                        onChange={(event) => {
+                                            setFormIsMultipleDays(event.target.checked);
+                                            setFormIsOneDay(false)
+                                        }}
                                     />
                                 }
                                 labelPlacement="top"
-                                label="Reserva unitária"
+                                label="Múltiplas datas"
                                 sx={{ width: "100%", marginX: 0 }}
                             />
-                        </Grid>
-                        <Grid item xs={3} paddingX={1} paddingTop={1}>
-                            <DemoContainer components={["DatePicker"]}>
-                                <DatePicker
-                                    label="Final da reserva"
-                                    value={
-                                        formIsOneDay 
-                                            ? formStartDay 
-                                            : (formEndDay?.isBefore(formStartDay) ? formStartDay : formEndDay)
-                                    }
-                                    minDate={formStartDay || dayjs()}
-                                    onChange={(newValue) => setFormEndDay(newValue)}
-                                    disabled={formIsOneDay}
-                                    disablePast
-                                    sx={{ width: "100%" }}
-                                />
-                            </DemoContainer>
                         </Grid>
                         <Grid item xs={3} paddingX={1} paddingTop={2}>
                             <Autocomplete
@@ -520,11 +631,15 @@ export default function FullScreenActionDialog({
                             roomScheduleItem.roomsId?.includes(r.id)
                         ) || [];
 
+                        const blockActiveDays = formIsMultipleDays 
+                            ? getEnabledDays(dayjs(roomScheduleItem.startDate), dayjs(roomScheduleItem.endDate), false)
+                            : globalActiveDays;
+
                         return (
                             <Box key={index} sx={{ border: '1px solid #ccc', padding: 2, borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     {/* Seletor de Salas específico deste bloco */}
-                                    <Box sx={{ flexGrow: 1 }}>
+                                    <Box sx={{ flex: 3 }}>
                                         <Autocomplete
                                             multiple
                                             options={roomList || []}
@@ -543,6 +658,45 @@ export default function FullScreenActionDialog({
                                             )}
                                         />
                                     </Box>
+                                    {formIsMultipleDays && <>
+                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                            <DatePicker
+                                                label="Inicio do bloco"
+                                                value={dayjs(roomScheduleItem.startDate)}
+                                                onChange={(newValue) => {
+                                                    setFormRoomsSchedules((prev) => {
+                                                        const updated = [...prev];
+                                                        const formatted = newValue ? newValue.format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD");
+                                                        updated[index] = { 
+                                                            ...updated[index], 
+                                                            startDate: formatted,
+                                                            endDate: dayjs(updated[index].endDate).isBefore(newValue) ? formatted : updated[index].endDate
+                                                        };
+                                                        return updated;
+                                                    });
+                                                }}
+                                                disablePast
+                                                sx={{ width: "100%" }} 
+                                            />
+                                        </Box>
+                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                            <DatePicker
+                                                label="Final do bloco"
+                                                value={dayjs(roomScheduleItem.endDate)}
+                                                minDate={dayjs(roomScheduleItem.startDate) || dayjs()}
+                                                onChange={(newValue) => {
+                                                    setFormRoomsSchedules((prev) => {
+                                                        const updated = [...prev];
+                                                        const formatted = newValue ? newValue.format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD");
+                                                        updated[index] = { ...updated[index], endDate: formatted };
+                                                        return updated;
+                                                    });
+                                                }}
+                                                disablePast
+                                                sx={{ width: "100%" }}
+                                            />
+                                        </Box>
+                                    </>}
 
                                     {/* Botões de Ação por Bloco */}
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -593,7 +747,7 @@ export default function FullScreenActionDialog({
                                             return updated;
                                         });
                                     }}
-                                    activeDays={activeDays}
+                                    activeDays={blockActiveDays}
                                 />
                             </Box>
                         );
@@ -610,9 +764,16 @@ export default function FullScreenActionDialog({
                     <Button 
                         variant="contained"
                         onClick={() => {
+                            const defaultDate = dayjs().format("YYYY-MM-DD");
                             setFormRoomsSchedules((prev) => [
                                 ...prev, 
-                                { roomsId: [], schedule: baseInternalSchedule() }
+                                { 
+                                    id: "", 
+                                    startDate: defaultDate, 
+                                    endDate: defaultDate, 
+                                    roomsId: [], 
+                                    schedule: baseInternalSchedule() 
+                                }
                             ]);
                         }}
                     >

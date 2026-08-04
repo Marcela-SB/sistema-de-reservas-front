@@ -1,6 +1,9 @@
 import dayjs, { Dayjs } from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
 import { ReservationT } from "../types/ReservationT";
 import { RoomT } from "../types/RoomT";
+
+dayjs.extend(isBetween);
 
 export default function tableFormat(
     date: Dayjs,
@@ -9,16 +12,21 @@ export default function tableFormat(
 ) {
     const dayOfWeek = date.day();
 
+    // Filtra as reservas com base nas datas de cada RoomsSchedule
     let filteredReservations = reservationList.filter((r: ReservationT) => {
-        const rStart = dayjs(r.reservationStart);
-        const rEnd = dayjs(r.reservationEnd);
-        if (date.isSame(rStart, "day") || date.isSame(rEnd, "day")) {
-            return true;
-        }
-        if (date.isAfter(rStart) && date.isBefore(rEnd)) {
-            return true;
-        }
-        return false;
+        if (!r.schedules || r.schedules.length === 0) return false;
+
+        // A reserva passa se pelo menos um dos seus schedules abranger a 'date' informada
+        return r.schedules.some(roomsSchedule => {
+            const schedStart = dayjs(roomsSchedule.startDate);
+            const schedEnd = dayjs(roomsSchedule.endDate);
+
+            return (
+                date.isSame(schedStart, "day") ||
+                date.isSame(schedEnd, "day") ||
+                date.isBetween(schedStart, schedEnd, "day", "[]")
+            );
+        });
     });
 
     const filteredReservationsByRooms: any[] = [];
@@ -27,15 +35,26 @@ export default function tableFormat(
         filteredReservationsByRooms.push([room]);
 
         filteredReservations.forEach((reservation: ReservationT) => {
-            // Procura nos schedules se algum bloco pertence a esta sala
+            // Procura nos schedules se algum bloco pertence a esta sala E abrange a data atual
             reservation.schedules?.forEach(roomsSchedule => {
                 const matchesRoom = roomsSchedule.roomsId?.some(roomId => roomId === room.id);
+                
                 if (matchesRoom) {
-                    // Guardamos a reserva associada ao seu respectivo bloco de horário da sala
-                    filteredReservationsByRooms[index].push({
-                        reservation,
-                        roomsSchedule
-                    });
+                    const schedStart = dayjs(roomsSchedule.startDate);
+                    const schedEnd = dayjs(roomsSchedule.endDate);
+
+                    const isDateInScheduleRange =
+                        date.isSame(schedStart, "day") ||
+                        date.isSame(schedEnd, "day") ||
+                        date.isBetween(schedStart, schedEnd, "day");
+
+                    if (isDateInScheduleRange) {
+                        // Guardamos a reserva associada ao seu respectivo bloco de horário da sala
+                        filteredReservationsByRooms[index].push({
+                            reservation,
+                            roomsSchedule
+                        });
+                    }
                 }
             });
         });
