@@ -305,10 +305,9 @@ export default function FullScreenActionDialog({
             }
         }
 
-        const formatedStart = effectiveStartDay!
-            .startOf("D")
-            .format("YYYY-MM-DDTHH:mm:ss");
+        const formatedStart = effectiveStartDay!.startOf("D").format("YYYY-MM-DDTHH:mm:ss");
         let formatedEnd = effectiveEndDay!.endOf("D").format("YYYY-MM-DDTHH:mm:ss");
+
         if (formIsOneDay) {
             formatedEnd = effectiveStartDay!
                 .endOf("D")
@@ -321,23 +320,17 @@ export default function FullScreenActionDialog({
         //     item.roomsId.forEach(id => allRoomsIdSet.add(id));
         // });
 
-        let schedulesToSubmit = formRoomsSchedules;
-        let finalStart = effectiveStartDay;
-        let finalEnd = effectiveEndDay;
+        const startStr = formStartDay!.format("YYYY-MM-DD");
+        const endStr = (formIsOneDay ? formStartDay! : formEndDay!).format("YYYY-MM-DD");
 
-        if (!formIsMultipleDays && formStartDay) {
-            const dateStr = formStartDay.format("YYYY-MM-DD");
-            const endStr = (formIsOneDay ? formStartDay : (formEndDay || formStartDay)).format("YYYY-MM-DD");
-            
-            finalStart = formStartDay;
-            finalEnd = formIsOneDay ? formStartDay : (formEndDay || formStartDay);
-
-            schedulesToSubmit = formRoomsSchedules.map(item => ({
-                ...item,
-                startDate: dateStr,
-                endDate: endStr
-            }));
-        }
+        // Prepara os schedules garantindo que as datas estejam sincronizadas com o estado atual
+        const schedulesToSubmit = formRoomsSchedules.map(item => ({
+            ...item,
+            // Se NÃO for múltiplas datas, força a data atual do form em todos
+            // Se FOR, mantém a data que já estava no item (ou usa a atual como fallback)
+            startDate: !formIsMultipleDays ? startStr : (item.startDate || startStr),
+            endDate: !formIsMultipleDays ? endStr : (item.endDate || endStr)
+        }));
 
         const header = {
             name: formName,
@@ -348,7 +341,7 @@ export default function FullScreenActionDialog({
             reservatedToId: formReservatedTo!.id,
             reservationResponsibleId: loggedUser.id,
             hasMultipleDates: formIsMultipleDays,
-            schedules: formRoomsSchedules,
+            schedules: schedulesToSubmit,
             comment: formComment,
             slots: formSlots,
         };
