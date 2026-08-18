@@ -2,7 +2,6 @@ import { Courses } from "./Courses";
 
 export type ReservationT = {
     id: string;
-    roomsId: string[];
     reservationResponsibleId: string;
     reservatedToId: string;
     creationDate: string; 

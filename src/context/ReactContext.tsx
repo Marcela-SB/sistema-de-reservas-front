@@ -56,20 +56,24 @@ function ReactContext({ children }: Props) {
         },
     });
 
-    const { data: activeUsersList } = useQuery({
+    const { data: activeUsersList = [] } = useQuery({
         queryKey: ["userListContext"],
         queryFn: async () => {
             const response = await axiosInstance.get("user/actives");
             return response.data;
         },
+        select: (data: UserT[]) => 
+            [...data].sort((a, b) => a.name.localeCompare(b.name)),
     });
 
-    const { data: allUsersList } = useQuery({
+    const { data: allUsersList = [] } = useQuery({
         queryKey: ["allUserListContext"],
         queryFn: async () => {
             const response = await axiosInstance.get("user");
             return response.data;
         },
+        select: (data: UserT[]) => 
+            [...data].sort((a, b) => a.name.localeCompare(b.name)),
     });
 
     const { data: reservationList } = useQuery({

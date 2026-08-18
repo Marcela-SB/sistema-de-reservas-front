@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import ScrollableList from "./ScrollableList";
-import { ReservationT } from "../types/ReservationT";
+import { ReservationT, RoomsSchedule } from "../types/ReservationT";
 import { StateContext } from "../context/ReactContext";
 import { Autocomplete, Stack, TextField } from "@mui/material";
 import { useState } from "react";
@@ -100,9 +100,11 @@ export default function FullScreenDialogList({
 
             if (formRoom) {
                 holderList = holderList.filter(
-                    (r: ReservationT) => r.roomsId.some(
-                        (roomId : string) => roomId == formRoom.id
-                    ) 
+                    (r: ReservationT) => r.schedules.some((roomsSchedule: RoomsSchedule) => 
+                        roomsSchedule.roomsId.some(
+                            (roomId : string) => roomId == formRoom.id
+                        )
+                    )
                 );
             }
 
@@ -157,26 +159,17 @@ export default function FullScreenDialogList({
             if (formSchedule) {
                 if (formSchedule.some((formS: boolean) => formS)) {
                     holderList = holderList.filter((r: ReservationT) => {
-                        return r.schedule.some((daylySchdule: boolean[]) => {
-                            return daylySchdule.some(
-                                (
-                                    hourlySchedule: boolean,
-                                    hourlyIndex: number
-                                ) => {
-                                    if (
-                                        hourlySchedule &&
-                                        formSchedule[hourlyIndex]
-                                    ) {
-                                        return true;
-                                    }
-                                }
-                            );
-                        });
+                        return r.schedules.some((roomsSchedule: RoomsSchedule) =>
+                            roomsSchedule.schedule.some((daylySchdule: boolean[]) =>
+                                daylySchdule.some((hourlySchedule: boolean, hourlyIndex: number) => {
+                                    return hourlySchedule && formSchedule[hourlyIndex];
+                                })
+                            )
+                        );
                     });
                 }
             }
-
-
+            
             setOptionsList([...holderList]);
         }
     }, [
@@ -242,6 +235,7 @@ export default function FullScreenDialogList({
                     <Stack
                         direction={"column"}
                         justifyContent={"space-between"}
+                        width={"100%"}
                     >
                         <Autocomplete
                             value={formRoom}
@@ -304,24 +298,32 @@ export default function FullScreenDialogList({
                                 />
                             )}
                         />
-                        <DemoContainer components={["DatePicker"]}>
-                            <DatePicker
-                                label="Inicio da reserva"
-                                value={formStartDay}
-                                onChange={(newValue) =>
-                                    setFormStartDay(newValue)
-                                }
-                                sx={{ width: "100%" }}
-                            />
-                        </DemoContainer>
-                        <DemoContainer components={["DatePicker"]}>
-                            <DatePicker
-                                label="Final da reserva"
-                                value={formEndDay}
-                                onChange={(newValue) => setFormEndDay(newValue)}
-                                sx={{ width: "100%" }}
-                            />
-                        </DemoContainer>
+                        <DatePicker
+                            label="Inicio da reserva"
+                            value={formStartDay}
+                            onChange={(newValue) =>
+                                setFormStartDay(newValue)
+                            }
+                            sx={{ width: "100%" }}
+                            slotProps={{
+                                textField: {
+                                    clearable: true,
+                                    onClear: () => setFormStartDay(null),
+                                },
+                            }}
+                        />
+                        <DatePicker
+                            label="Final da reserva"
+                            value={formEndDay}
+                            onChange={(newValue) => setFormEndDay(newValue)}
+                            sx={{ width: "100%" }}
+                            slotProps={{
+                                textField: {
+                                    clearable: true,
+                                    onClear: () => setFormStartDay(null),
+                                },
+                            }}
+                        />
                     </Stack>
                 </Stack>
                 <Autocomplete
