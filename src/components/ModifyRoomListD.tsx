@@ -33,6 +33,7 @@ function ModifyRoomListD({
 
     useEffect(() => {
         if (roomList) {
+            const searchedTextLowerCase = searchedText.toLowerCase();
             const filteredRoomList = roomList
                 ?.filter((room: RoomT) => {
                     //if no input the return the original
@@ -42,7 +43,7 @@ function ModifyRoomListD({
 
                     //return the item which contains the room input
                     else {
-                        return room.name?.toLowerCase().includes(searchedText.toLowerCase());
+                        return room.name?.toLowerCase().includes(searchedTextLowerCase) || room.roomNumber?.toLowerCase().includes(searchedTextLowerCase);
                     }
                 })
                 .sort(roomDynamicSort());
