@@ -119,6 +119,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                 allUsersList
             );
             setFormReservatedTo(user);
+            setFormReturnedBy(user);
 
             const userResponsible: UserT = getUserById(
                 selectedKey.withdrawResponsibleId,
