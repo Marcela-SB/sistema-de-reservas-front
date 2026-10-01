@@ -109,6 +109,10 @@ export default function ReservationDetailsDialog({
                     className="draggable-dialog"
                 >
                     <Toolbar>
+                        <Stack direction={"row"}
+                            sx={{ width: "100%", alignItems: "center" }}
+                            gap={3}
+                        >
                         <Typography
                             sx={{ ml: 0, flex: 1 }}
                             variant="h6"
@@ -116,6 +120,11 @@ export default function ReservationDetailsDialog({
                         >
                             Detalhes da reserva
                         </Typography>
+                        
+                        <Typography variant="body2" noWrap>
+                            Criação: {reservation.creationDate ? dayjs(reservation.creationDate).format("DD/MM/YYYY [às] HH:mm") : "N/A"}
+                        </Typography>
+
                         <Stack direction={"row"} spacing={1} >
                             <IconButton
                                 ref={submitButtonRef}
@@ -134,6 +143,7 @@ export default function ReservationDetailsDialog({
                             >
                                 <CloseIcon />
                             </IconButton>
+                        </Stack>
                         </Stack>
                     </Toolbar>
                 </AppBar>
