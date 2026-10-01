@@ -109,31 +109,41 @@ export default function ReservationDetailsDialog({
                     className="draggable-dialog"
                 >
                     <Toolbar>
-                        <Typography
-                            sx={{ ml: 0, flex: 1 }}
-                            variant="h6"
-                            component="div"
+                        <Stack direction={"row"}
+                            sx={{ width: "100%", alignItems: "center" }}
+                            gap={3}
                         >
-                            Detalhes da reserva
-                        </Typography>
-                        <Stack direction={"row"} spacing={1} >
-                            <IconButton
-                                ref={submitButtonRef}
-                                edge="start"
-                                color="inherit"
-                                onClick={handleEdit}
-                                aria-label="edit"
+                            <Typography
+                                sx={{ ml: 0, flex: 1 }}
+                                variant="h6"
+                                component="div"
                             >
-                                <Edit />
-                            </IconButton>
-                            <IconButton
-                                edge="start"
-                                color="inherit"
-                                onClick={handleClose}
-                                aria-label="close"
-                            >
-                                <CloseIcon />
-                            </IconButton>
+                                Detalhes da reserva
+                            </Typography>
+                            
+                            <Typography variant="body2" noWrap>
+                                Criação: {reservation.creationDate ? dayjs(reservation.creationDate).format("DD/MM/YYYY [às] HH:mm") : "N/A"}
+                            </Typography>
+
+                            <Stack direction={"row"} spacing={1} >
+                                <IconButton
+                                    ref={submitButtonRef}
+                                    edge="start"
+                                    color="inherit"
+                                    onClick={handleEdit}
+                                    aria-label="edit"
+                                >
+                                    <Edit />
+                                </IconButton>
+                                <IconButton
+                                    edge="start"
+                                    color="inherit"
+                                    onClick={handleClose}
+                                    aria-label="close"
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Stack>
                         </Stack>
                     </Toolbar>
                 </AppBar>
