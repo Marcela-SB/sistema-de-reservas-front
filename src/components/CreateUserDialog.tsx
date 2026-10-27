@@ -105,6 +105,8 @@ export default function CreateUserDialog({
             setFormRegistration(selectedUser.registration);
 
             setFormUsername(selectedUser.username);
+
+            setFormRole(selectedUser.role);
         }
     }, [selectedUser]);
 
