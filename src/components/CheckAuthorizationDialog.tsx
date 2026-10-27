@@ -65,7 +65,7 @@ export default function CheckAuthorizationDialog({
     setSelectedAuthorization,
     setCreateAuthIsOpen,
 }: Props) {
-    const { setSnackBarText, setSnackBarSeverity, roomList, allUsersList, activeUsersList } =
+    const { setSnackBarText, setSnackBarSeverity, roomList, allUsersList, activeUsersList, loggedUser } =
         React.useContext(StateContext);
 
     const handleClose = () => {
@@ -237,15 +237,18 @@ export default function CheckAuthorizationDialog({
                             >
                                 CONSULTA DE AUTORIZAÇÃO
                             </Typography>
-                            <IconButton
-                                ref={submitButtonRef}
-                                edge="start"
-                                color="inherit"
-                                onClick={handleEdit}
-                                aria-label="edit"
-                            >
-                                <Edit />
-                            </IconButton>
+
+                            {(loggedUser?.role === "ADMIN" || loggedUser?.role === "SUPERVISOR") && (
+                                <IconButton
+                                    ref={submitButtonRef}
+                                    edge="start"
+                                    color="inherit"
+                                    onClick={handleEdit}
+                                    aria-label="edit"
+                                >
+                                    <Edit />
+                                </IconButton>
+                            )}
                             <IconButton
                                 edge="start"
                                 color="inherit"

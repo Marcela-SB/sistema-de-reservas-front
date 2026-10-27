@@ -127,7 +127,7 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                     onClick={toggleDrawer(false)}
                     onKeyDown={toggleDrawer(false)}
                 >
-                    {userPower >= 2 ? (
+                    {userPower >= 2 && (
                         <>
                             <List>
                                 <ListItem key={"Criar reserva"} disablePadding>
@@ -164,8 +164,8 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                             </List>
                             <Divider />
                         </>
-                    ) : null}
-                    {userPower >= 1 ? (
+                    )}
+                    {userPower >= 1 && (
                         <>
                             <List>
                                 <ListItem
@@ -205,24 +205,22 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                             </List>
                             <Divider />
                             <List>
-                                {userPower >= 2 ? (
-                                    <>
-                                        <ListItem key={"Criar espaço"} disablePadding>
-                                            <ListItemButton
-                                                onClick={() => {
-                                                    setRoomCreateDIsOpen(true);
-                                                }}
-                                            >
-                                                <ListItemIcon>
-                                                    <MeetingRoom />
-                                                </ListItemIcon>
-                                                <ListItemText
-                                                    primary={"Criar espaço"}
-                                                />
-                                            </ListItemButton>
-                                        </ListItem>
-                                    </>
-                                ) : null}
+                                {userPower >= 2 && (
+                                    <ListItem key={"Criar espaço"} disablePadding>
+                                        <ListItemButton
+                                            onClick={() => {
+                                                setRoomCreateDIsOpen(true);
+                                            }}
+                                        >
+                                            <ListItemIcon>
+                                                <MeetingRoom />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={"Criar espaço"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                )}
                                 <ListItem
                                     key={"Consultar espaços"}
                                     disablePadding
@@ -243,8 +241,8 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                             </List>
                             <Divider />
                         </>
-                    ) : null}
-                    {userPower >= 1 ? (
+                    )}
+                    {userPower >= 1 && (
                         <>
                             <List>
                                 <ListItem key={"Criar usuario"} disablePadding>
@@ -283,27 +281,29 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                             </List>
                             <Divider />
                         </>
-                    ) : null}
-                    {userPower >= 1 ? (
+                    )}
+                    {userPower >= 1 && (
                         <>
                             <List>
-                                <ListItem
-                                    key={"Criar autorização"}
-                                    disablePadding
-                                >
-                                    <ListItemButton
-                                        onClick={() => {
-                                            setAuthorizationCreateDIsOpen(true);
-                                        }}
+                                {userPower >= 2 && (
+                                    <ListItem
+                                        key={"Criar autorização"}
+                                        disablePadding
                                     >
-                                        <ListItemIcon>
-                                            <NoteAdd />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={"Criar autorização"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
+                                        <ListItemButton
+                                            onClick={() => {
+                                                setAuthorizationCreateDIsOpen(true);
+                                            }}
+                                        >
+                                            <ListItemIcon>
+                                                <NoteAdd />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={"Criar autorização"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                )}
                                 <ListItem
                                     key={"Consultar autorizações"}
                                     disablePadding
@@ -324,7 +324,7 @@ export default function LoginDrawer({ isOpen, setIsOpen }: Props) {
                             </List>
                             <Divider />
                         </>
-                    ) : null}
+                    )}
                     <Container>
                         <Button
                             variant="contained"

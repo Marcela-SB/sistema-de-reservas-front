@@ -44,7 +44,7 @@ export default function ReservationDetailsDialog({
     setReservationToEdit,
     setEditIsOpen
 }: Props) {
-    const { roomList, allUsersList } = React.useContext(StateContext);
+    const { roomList, allUsersList, loggedUser } = React.useContext(StateContext);
 
     const handleClose = () => {
         setIsOpen(false);
@@ -126,15 +126,17 @@ export default function ReservationDetailsDialog({
                         </Typography>
 
                         <Stack direction={"row"} spacing={1} >
-                            <IconButton
-                                ref={submitButtonRef}
-                                edge="start"
-                                color="inherit"
-                                onClick={handleEdit}
-                                aria-label="edit"
-                            >
-                                <Edit />
-                            </IconButton>
+                            {(loggedUser?.role === "ADMIN" || loggedUser?.role === "SUPERVISOR") && (
+                                <IconButton
+                                    ref={submitButtonRef}
+                                    edge="start"
+                                    color="inherit"
+                                    onClick={handleEdit}
+                                    aria-label="edit"
+                                >
+                                    <Edit />
+                                </IconButton>
+                            )}
                             <IconButton
                                 edge="start"
                                 color="inherit"
