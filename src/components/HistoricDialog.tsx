@@ -144,24 +144,25 @@ export default function HistoricDialog({
                                                 )?.name
                                             }
                                         </Typography>
-                                        {key.isKeyReturned ?
+                                        {(key.isKeyReturned && key.keyReturnedById && key.returnTime) && (
                                             <>
-                                            <Typography>
-                                                Retorno feito por:
-                                                {
-                                                    getUserById(
-                                                        key.keyReturnedById,
-                                                        allUsersList
-                                                    )?.name
-                                                }
-                                            </Typography>
-                                            <Typography>
-                                                Retorno de chave:
-                                                {dayjs(key.returnTime).format(
-                                                    "HH:mm [no dia] DD/MM/YYYY"
-                                                )}
-                                            </Typography>
-                                            </> : null }
+                                                <Typography>
+                                                    Retorno feito por:
+                                                    {
+                                                        getUserById(
+                                                            key.keyReturnedById,
+                                                            allUsersList
+                                                        )?.name
+                                                    }
+                                                </Typography>
+                                                <Typography>
+                                                    Retorno de chave:
+                                                    {dayjs(key.returnTime).format(
+                                                        "HH:mm [no dia] DD/MM/YYYY"
+                                                    )}
+                                                </Typography>
+                                            </>
+                                        )}
                                     </Stack>
                                     {key.isKeyReturned ?
                                         null: (
