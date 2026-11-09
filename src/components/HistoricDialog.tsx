@@ -107,27 +107,38 @@ export default function HistoricDialog({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <List sx={{overflow: "auto", maxHeight: "30rem"}} >
+                <List sx={{ overflow: "auto", maxHeight: "30rem" }}>
                     {scrollableRoomArray?.map((key) => {
                         return (
-                            <>
-                                <ListItem key={`modkeylist-${key.id}`}>
-                                    <Stack direction={"column"} sx={{marginRight:20}}>
+                            <React.Fragment key={`modkeylist-${key.id}`}>
+                                <ListItem
+                                    secondaryAction={
+                                        !key.isKeyReturned ? (
+                                            <Tooltip title={"Chave não retornada"}>
+                                                <PriorityHighRoundedIcon
+                                                    color="error"
+                                                    fontSize="large"
+                                                />
+                                            </Tooltip>
+                                        ) : null
+                                    }
+                                >
+                                    <Stack direction={"column"} sx={{ marginRight: 20 }}>
                                         <Typography>
-                                            Retirada de chave:
+                                            <strong>Retirada de chave:</strong>{" "}
                                             {dayjs(key.withdrawTime).format(
                                                 "HH:mm [no dia] DD/MM/YYYY"
                                             )}
                                         </Typography>
                                         <Typography>
-                                            Previsão do retorno:
+                                            <strong>Previsão do retorno:</strong>{" "}
                                             {dayjs(key.returnPrevision).format(
                                                 "HH:mm"
                                             )}
                                         </Typography>
 
                                         <Typography>
-                                            Responsavel pela reserva:
+                                            <strong>Responsavel pela reserva:</strong>{" "}
                                             {
                                                 getUserById(
                                                     key.withdrawResponsibleId,
@@ -136,7 +147,7 @@ export default function HistoricDialog({
                                             }
                                         </Typography>
                                         <Typography>
-                                            Reserva feita para:
+                                            <strong>Reserva feita para:</strong>{" "}
                                             {
                                                 getUserById(
                                                     key.responsibleForTheKeyId,
@@ -147,7 +158,7 @@ export default function HistoricDialog({
                                         {(key.isKeyReturned && key.keyReturnedById && key.returnTime) && (
                                             <>
                                                 <Typography>
-                                                    Retorno feito por:
+                                                    <strong>Retorno feito por:</strong>{" "}
                                                     {
                                                         getUserById(
                                                             key.keyReturnedById,
@@ -156,7 +167,7 @@ export default function HistoricDialog({
                                                     }
                                                 </Typography>
                                                 <Typography>
-                                                    Retorno de chave:
+                                                    <strong>Retorno de chave:</strong>{" "}
                                                     {dayjs(key.returnTime).format(
                                                         "HH:mm [no dia] DD/MM/YYYY"
                                                     )}
@@ -164,24 +175,9 @@ export default function HistoricDialog({
                                             </>
                                         )}
                                     </Stack>
-                                    {key.isKeyReturned ?
-                                        null: (
-                                        <ListItemSecondaryAction
-                                        >
-                                            <Tooltip
-                                                title={"Chave não retornada"}
-                                            >
-                                                <PriorityHighRoundedIcon
-                                                    color="error"
-                                                    fontSize="large"
-                                                ></PriorityHighRoundedIcon>
-                                            </Tooltip>
-                                        </ListItemSecondaryAction>
-                                    )}
-
                                 </ListItem>
                                 <Divider variant="middle" />
-                            </>
+                            </React.Fragment>
                         );
                     })}
                 </List>
