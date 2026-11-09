@@ -49,56 +49,69 @@ type Props = {
     setIsOpen: (b: boolean) => void;
 };
 
+// Tipagem para a resposta do lote vinda do back-end
+type KeyErrorDetail = {
+    keyId: number;
+    message: string;
+};
+
+type KeyReturnBatchResponse = {
+    successIds: number[];
+    errors: KeyErrorDetail[];
+};
+
 export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
     const { roomList, activeUsersList, allUsersList } = React.useContext(StateContext);
 
     const handleClose = () => {
         setIsOpen(false);
-        cleanInputs()
+        cleanInputs();
     };
 
     const cleanInputs = () => {
         setFormReservatedTo(null);
         setFormResponsible(null);
         setSelectedKey(null);
+        setSelectedKeyList([]);
         setFormReturnTimePrevision(dayjs());
         setFormReturnedBy(null);
         setFormRoom(null);
-    }
+    };
 
     const handleRefresh = () => {
         queryClient.invalidateQueries({queryKey: ["keyListContext"]})
-    }
+    };
 
     const [selectedKey, setSelectedKey] = useState<KeyT | null>(null);
-
     const [selectedKeyList, setSelectedKeyList] = useState<KeyT[]>([]);
-
     const [formRoom, setFormRoom] = useState<RoomT | null>(null);
-
     const [formReturnTimePrevision, setFormReturnTimePrevision] = useState<Dayjs | null>(dayjs());
-
     const [formReservatedTo, setFormReservatedTo] = useState<UserT | null>(null);
-
     const [formResponsible, setFormResponsible] = useState<UserT | null>(null);
-
     const [formReturnedBy, setFormReturnedBy] = useState<UserT | null>(null);
-
     const [checkDialogIsOpen, setCheckDialogIsOpen] = useState(false);
-
     const [checkSucess, setCheckSucess] = useState(false);
 
     const { setSnackBarText, setSnackBarSeverity } = React.useContext(StateContext);
 
-    const editMutation = useMutation({
-        mutationFn: (header) => {
-            return axiosInstance.put("keydelivery/edit/" + header.id, header);
+    const batchReturnMutation = useMutation({
+        mutationFn: async (payload: { keyReturnedById: number | undefined; returnTime: string; keyIds: number[] }) => {
+            const response = await axiosInstance.post<KeyReturnBatchResponse>("keydelivery/return", payload);
+            return response.data;
         },
-        onSuccess: () => {
-            setSnackBarText("Devolução de chave criada com sucesso");
-            setSnackBarSeverity("success");
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["keyListContext"] });
-            cleanInputs()
+            
+            // Trata o resultado parcial ou total enviado pelo back-end
+            if (data.errors && data.errors.length > 0) {
+                setSnackBarText(`Devolução parcial: ${data.successIds.length} chave(s) devolvida(s). ${data.errors.length} falharam.`);
+                setSnackBarSeverity("warning");
+            } else {
+                setSnackBarText("Devolução de chave(s) realizada com sucesso!");
+                setSnackBarSeverity("success");
+            }
+
+            cleanInputs();
         },
         onError: (error) => {
             setSnackBarText("Houve um problema na requisição!");
@@ -108,7 +121,6 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
 
     React.useEffect(() => {
         if (selectedKey) {
-
             const room: RoomT = getRoomById(selectedKey.roomId, roomList);
             setFormRoom(room);
 
@@ -130,22 +142,37 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
     }, [selectedKey]);
 
     const submitReturn = () => {
+        let keysToSubmit: KeyT[] = [];
+
+        if (selectedKeyList.length > 0) {
+            // Regra 1: Se há checkboxes marcados, o lote tem prioridade absoluta.
+            // Ignoramos qualquer chave isolada da setinha.
+            keysToSubmit = selectedKeyList;
+        } else if (selectedKey) {
+            // Regra 2: Se nenhum checkbox foi marcado, mas o usuário clicou na setinha de uma chave específica.
+            keysToSubmit = [selectedKey];
+        } else {
+            // Regra 3: Nada selecionado
+            setSnackBarText("Selecione ao menos uma chave para devolver.");
+            setSnackBarSeverity("warning");
+            return;
+        }
+
         setCheckDialogIsOpen(true);
     };
 
+    // Dispara o envio em lote único assim que a senha/login for validado no CheckUserDialog
     React.useEffect(() => {
         if (checkSucess) {
             const returnTime = dayjs().format("YYYY-MM-DDTHH:mm:ss");
 
-            selectedKeyList.forEach((key) => {
-                const header = {
-                    isKeyReturned: true,
-                    keyReturnedById: formReturnedBy?.id,
-                    returnTime: returnTime,
-                    id: key.id,
-                };
-                editMutation.mutate(header);
-            });
+            const payload = {
+                keyReturnedById: formReturnedBy?.id,
+                returnTime: returnTime,
+                keyIds: selectedKeyList.map((key) => key.id),
+            };
+
+            batchReturnMutation.mutate(payload);
 
             setCheckSucess(false);
         }
@@ -153,8 +180,8 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
 
     const [isRequestPending, setIsRequestPending] = useState(false);
     React.useEffect(() => {
-        setIsRequestPending(editMutation.isPending);
-    }, [editMutation]);
+        setIsRequestPending(batchReturnMutation.isPending);
+    }, [batchReturnMutation]);
 
     const dialogRef = React.useRef<HTMLDivElement>(null);
     const submitButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -203,7 +230,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                                 edge="start"
                                 color="inherit"
                                 onClick={handleRefresh}
-                                aria-label="close"
+                                aria-label="refresh"
                             >
                                 <RefreshIcon />
                             </IconButton>
@@ -241,7 +268,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                                 <Autocomplete
                                     value={formRoom}
                                     disabled
-                                    id="controllable-states-demo"
+                                    id="controllable-states-room"
                                     options={roomList}
                                     getOptionLabel={(room: RoomT) => {
                                         let roomN = "";
@@ -260,7 +287,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                                 <Autocomplete
                                     value={formReservatedTo}
                                     disabled
-                                    id="controllable-states-demo"
+                                    id="controllable-states-reserved-to"
                                     options={allUsersList}
                                     getOptionLabel={(user: UserT) => {
                                         return user.name;
@@ -276,7 +303,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                                 <Autocomplete
                                     value={formResponsible}
                                     disabled
-                                    id="controllable-states-demo"
+                                    id="controllable-states-responsible"
                                     options={allUsersList}
                                     getOptionLabel={(user: UserT) => {
                                         return user.name;
@@ -309,7 +336,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                                     ) => {
                                         setFormReturnedBy(newValue);
                                     }}
-                                    id="controllable-states-demo"
+                                    id="controllable-states-returned-by"
                                     options={activeUsersList}
                                     getOptionLabel={(user: UserT) => {
                                         return user.name;

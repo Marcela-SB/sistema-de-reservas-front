@@ -21,7 +21,7 @@ import keyDynamicSort from "../utils/keyDynamicSort";
 type Props = {
     setSelectedKey: (k: KeyT) => void;
     selectedKeyList: KeyT[];
-    setSelectedKeyList: (k: KeyT) => void;
+    setSelectedKeyList: (k: KeyT[]) => void;
 };
 
 export default function KeyScrollableList({
@@ -33,18 +33,19 @@ export default function KeyScrollableList({
 
 
     const handleKeyListChange = (key: KeyT) => {
-        const holder = selectedKeyList;
-
-        const keyIndex = holder?.findIndex(
-            (holderKey) => holderKey.id == key.id
+        const keyIndex = selectedKeyList.findIndex(
+                (holderKey) => holderKey.id === key.id
         );
 
         if (keyIndex > -1) {
-            holder?.splice(keyIndex, 1);
+            // Remove o item criando um novo array filtrado
+            const updatedList = selectedKeyList.filter((_, index) => index !== keyIndex);
+            setSelectedKeyList(updatedList);
         } else {
-            holder?.push(key);
+            // Adiciona o item criando um novo array com spread
+            const updatedList = [...selectedKeyList, key];
+            setSelectedKeyList(updatedList);
         }
-        setSelectedKeyList(holder);
     };
 
     const [ordainedKeyList, setOrdainedKeyList] = useState<KeyT[]>([])
@@ -122,12 +123,15 @@ export default function KeyScrollableList({
                                 "HH:mm"
                             );
 
+
                             let returnPrevision = ""
                             if(item.returnPrevision) {
                                 returnPrevision = `-  ${dayjs(item.returnPrevision).format("HH:mm")}`
                             }
 
 
+                            // Verifica se este item está selecionado para marcar o checkbox corretamente
+                            const isChecked = selectedKeyList.some((k) => k.id === item.id);
 
 
                             return (
@@ -154,7 +158,11 @@ export default function KeyScrollableList({
                                         dense
                                     >
                                         <ListItemIcon sx={{ minWidth: "auto" }}>
-                                            <Checkbox edge="start" disableRipple />
+                                            <Checkbox 
+                                                edge="start" 
+                                                disableRipple 
+                                                checked={isChecked} 
+                                            />
                                         </ListItemIcon>
                                         <ListItemText
                                             primary={`${roomDisplayName}`}
