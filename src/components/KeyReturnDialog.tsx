@@ -51,12 +51,12 @@ type Props = {
 
 // Tipagem para a resposta do lote vinda do back-end
 type KeyErrorDetail = {
-    keyId: number;
+    keyId: string;
     message: string;
 };
 
 type KeyReturnBatchResponse = {
-    successIds: number[];
+    successIds: string[];
     errors: KeyErrorDetail[];
 };
 
@@ -93,6 +93,48 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
     const [checkSucess, setCheckSucess] = useState(false);
 
     const { setSnackBarText, setSnackBarSeverity } = React.useContext(StateContext);
+
+    const getCheckDialogInfo = () => {
+        const activeList = selectedKeyList.length > 0 ? selectedKeyList : (selectedKey ? [selectedKey] : []);
+        
+        // Se houver exatamente 1 item no checklist ou nenhum no checklist mas tem uma selectedKey
+        if (activeList.length === 1) {
+            const targetKey = activeList[0];
+            const room = getRoomById(targetKey.roomId, roomList);
+            const reservedToUser = getUserById(targetKey.responsibleForTheKeyId, allUsersList);
+            const responsibleUser = getUserById(targetKey.withdrawResponsibleId, allUsersList);
+
+            return {
+                sala: room?.name,
+                reservadoPara: reservedToUser?.name,
+                reservadoPor: responsibleUser?.name,
+                retornadoPor: formReturnedBy?.name,
+            };
+        }
+        
+        // Caso contrário (2 ou mais chaves no lote)
+        if (activeList.length > 1) {
+            const roomNames = activeList
+                .map((key) => getRoomById(key.roomId, roomList)?.name)
+                .filter(Boolean)
+                .join(", ");
+
+            return {
+                sala: roomNames,
+                reservadoPara: "",
+                reservadoPor: "",
+                retornadoPor: formReturnedBy?.name,
+            };
+        }
+
+        // Fallback padrão vazio se nada estiver selecionado
+        return {
+            sala: formRoom?.name || "",
+            reservadoPara: formReservatedTo?.name || "",
+            reservadoPor: formResponsible?.name || "",
+            retornadoPor: formReturnedBy?.name || "",
+        };
+    };
 
     const batchReturnMutation = useMutation({
         mutationFn: async (payload: { keyReturnedById: number | undefined; returnTime: string; keyIds: number[] }) => {
@@ -146,11 +188,12 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
 
         if (selectedKeyList.length > 0) {
             // Regra 1: Se há checkboxes marcados, o lote tem prioridade absoluta.
-            // Ignoramos qualquer chave isolada da setinha.
-            keysToSubmit = selectedKeyList;
+            // Ignoramos qualquer chave isolada da setinha. 
+            // As marcadas no checkbox já foram adicionadas ao selectedKeyList, então só passamos direto para o envio.
         } else if (selectedKey) {
             // Regra 2: Se nenhum checkbox foi marcado, mas o usuário clicou na setinha de uma chave específica.
             keysToSubmit = [selectedKey];
+            setSelectedKeyList([selectedKey]); 
         } else {
             // Regra 3: Nada selecionado
             setSnackBarText("Selecione ao menos uma chave para devolver.");
@@ -159,6 +202,12 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
         }
 
         setCheckDialogIsOpen(true);
+
+        setSelectedKey(null);
+        setFormRoom(null);
+        setFormReservatedTo(null);
+        setFormResponsible(null);
+        setFormReturnTimePrevision(dayjs());
     };
 
     // Dispara o envio em lote único assim que a senha/login for validado no CheckUserDialog
@@ -371,12 +420,7 @@ export default function KeyReturnDialog({ isOpen, setIsOpen }: Props) {
                     setIsOpen={setCheckDialogIsOpen}
                     chekedUser={formReturnedBy}
                     setCheckSucess={setCheckSucess}
-                    info= {{
-                        sala: formRoom?.name,
-                        reservadoPara: formReservatedTo?.name,
-                        reservadoPor: formResponsible?.name,
-                        retornadoPor: formReturnedBy?.name,
-                    }}
+                    info={getCheckDialogInfo()}
                 />
             </DraggablePaper>
         </>

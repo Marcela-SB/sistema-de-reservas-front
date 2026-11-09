@@ -123,7 +123,6 @@ export default function KeyScrollableList({
                                 "HH:mm"
                             );
 
-
                             let returnPrevision = ""
                             if(item.returnPrevision) {
                                 returnPrevision = `-  ${dayjs(item.returnPrevision).format("HH:mm")}`
@@ -223,6 +222,8 @@ export default function KeyScrollableList({
                                     returnPrevision = `-  ${dayjs(item.returnPrevision).format("HH:mm")}`
                                 }
 
+                                const isChecked = selectedKeyList.some((k) => k.id === item.id);
+
                                 return (
                                     <ListItem
                                         key={item.id}
@@ -247,7 +248,11 @@ export default function KeyScrollableList({
                                             dense
                                         >
                                             <ListItemIcon sx={{ minWidth: "auto" }}>
-                                                <Checkbox edge="start" disableRipple />
+                                                <Checkbox
+                                                    edge="start" 
+                                                    disableRipple
+                                                    checked={isChecked} 
+                                                />
                                             </ListItemIcon>
                                             <ListItemText
                                                 primary={`${roomDisplayName}`}
@@ -257,7 +262,8 @@ export default function KeyScrollableList({
                                     </ListItem>
                                 );
                             })}
-                        </List></Stack>
+                        </List>
+                    </Stack>
 
 
                 <FormControl >
