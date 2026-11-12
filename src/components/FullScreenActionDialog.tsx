@@ -467,7 +467,12 @@ export default function FullScreenActionDialog({
                         </Grid>
                         <Grid item xs={3} paddingX={1}>
                             <StyledFormControl variant="outlined" fullWidth>
-                                <InputLabel id="demo-simple-select-filled-label">Curso</InputLabel>
+                                <InputLabel 
+                                    id="demo-simple-select-filled-label" 
+                                    sx={{bgcolor:"white", px:"5px"}}
+                                >
+                                    Curso
+                                </InputLabel>
                                 <Select
                                     labelId="demo-simple-select-filled-label"
                                     id="demo-simple-select-filled"
